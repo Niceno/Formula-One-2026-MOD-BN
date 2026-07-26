@@ -1,0 +1,20 @@
+# Formula One sponsor-name template
+# Lines beginning with # and empty lines are ignored.
+#
+# 13 sponsors, maximum 12 ASCII characters per name.
+#
+# Derived from 2020 Mod by R. Martins and J. Pois
+
+Petronas
+Shell
+Missn Winnow
+UBS
+Orlen
+Castrol
+Bombardier
+DP World
+Dell
+Infiniti
+Better Tmrow
+Jack & Jones
+BWT

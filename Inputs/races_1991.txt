@@ -1,0 +1,18 @@
+# 1991 Formula One calendar for tweak-f1.py
+# Format: RACE (max 8) | CIRCUIT (max 18) | LAPS (1-99)
+U.S.A.   | Phoenix Street     | 81
+Brazil   | Interlagos         | 71
+S.Marino | Imola              | 61
+Monaco   | Circuit de Monaco  | 78
+Canada   | Gilles Villeneuve  | 69
+Mexico   | Hermanos Rodriguez | 67
+France   | Magny-Cours        | 72
+Britain  | Silverstone        | 59
+Germany  | Hockenheimring     | 45
+Hungary  | Hungaroring        | 77
+Belgium  | Spa-Francorchamps  | 44
+Italy    | Monza              | 53
+Portugal | Estoril            | 71
+Spain    | Circuit Catalunya  | 65
+Japan    | Suzuka             | 53
+Austral. | Adelaide Street    | 81

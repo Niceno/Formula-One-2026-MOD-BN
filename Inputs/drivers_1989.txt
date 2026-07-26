@@ -1,0 +1,33 @@
+# Formula One driver-name template
+# Lines beginning with # and empty lines are ignored.
+#
+# 24 drivers, maximum 10 ASCII characters per name.
+#
+# The list has been created from the final standings in the year 1989
+
+Prost
+Senna
+Patrese
+Mansell
+Boutsen
+Nannini
+Berger
+Piquet
+Alesi
+Warwick
+Cheever
+Johansson
+Alboreto
+Herbert
+Martini
+Gugelmin
+de Cesaris
+Modena
+
+# Customizable drivers
+Munday
+Wheelhouse
+Martins
+Pois
+Niceno
+Gudac

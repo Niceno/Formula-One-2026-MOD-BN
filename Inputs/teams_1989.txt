@@ -1,0 +1,14 @@
+# Formula One team-name template
+# Lines beginning with # and empty lines are ignored.
+#
+# 6 teams, maximum 8 ASCII characters per name.
+#
+# The list is based on the final teams standings in 1989
+
+McLaren
+Williams
+Ferrari
+Benetton
+Tyrrell
+Lotus
+

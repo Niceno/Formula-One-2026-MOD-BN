@@ -1,0 +1,19 @@
+# Formula One sponsor-name template
+#
+# One sponsor per line, in game-record order.
+# Maximum: 13 sponsors, 12 ASCII characters per name.
+# Lines beginning with # and empty lines are ignored.
+
+Marlboro
+Shell
+Canon
+Elf
+Agip
+Fiat
+Autopolis
+Mobil 1
+7UP
+Fuji Film
+Braun
+Epson
+Camel

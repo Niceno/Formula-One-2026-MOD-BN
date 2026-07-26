@@ -1,0 +1,18 @@
+# Original 1987 Formula One calendar for tweak-f1.py
+# Format: RACE (max 8) | CIRCUIT (max 18) | LAPS (1-99)
+Brazil   | Jacarepagua        | 61
+S.Marino | Imola              | 60
+Belgium  | Spa-Francorchamps  | 43
+Monaco   | Circuit de Monaco  | 78
+U.S.A.   | Detroit Street     | 63
+France   | Paul Ricard        | 80
+Britain  | Silverstone        | 65
+Germany  | Hockenheimring     | 44
+Hungary  | Hungaroring        | 76
+Austria  | Osterreichring     | 52
+Italy    | Monza              | 50
+Portugal | Estoril            | 70
+Spain    | Jerez              | 72
+Mexico   | Hermanos Rodriguez | 68
+Japan    | Suzuka             | 51
+Austral. | Adelaide Street    | 82

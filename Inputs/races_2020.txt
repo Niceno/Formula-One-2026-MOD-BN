@@ -1,0 +1,18 @@
+# Formula One calendar for tweak-f1.py extracted from 2020-Mod
+# Format: RACE (max 8) | CIRCUIT (max 18) | LAPS (1-99)
+Austrian | Red Bull Ring      | 71
+Styrian  | Red Bull Ring      | 71
+Hungary  | Hungaroring        | 70
+British  | Silverstone        | 52
+70 Anniv | Silverstone        | 52
+Spanish  | Barcelona          | 66
+Belgian  | Spa-Francorchamps  | 44
+Italian  | Aut Nacional Monza | 53
+Tuscan   | Mugello            | 59
+Russian  | Sochi Autodrom     | 53
+Eifel    | Nurburgring        | 60
+Portugal | Aut Inter Portimao | 66
+Emilia R | Enzo Dino Ferrari  | 63
+Turkish  | Intercity Istanbul | 58
+Bahrain  | Bahrain IntCircuit | 57
+A.Dhabi  | Yas Marina         | 55

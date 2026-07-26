@@ -1,0 +1,21 @@
+# Formula One sponsor-name template
+# Lines beginning with # and empty lines are ignored.
+#
+# 13 sponsors, maximum 12 ASCII characters per name.
+#
+# Derived from illustrations from 6 best teams in 1985 + one more
+# Illustrations: https://ch.pinterest.com/pin/303993043595801707/
+
+Canon
+Mobil 1
+Marlboro
+Shell
+Camel
+DeLonghi
+Agip
+Fiat
+Benetton
+Riello
+Courtaulds
+Data General
+Gitanes

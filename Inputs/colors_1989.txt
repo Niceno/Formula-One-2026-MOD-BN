@@ -1,0 +1,17 @@
+# Formula One team-colour template
+#
+# One team per line, in the same order as list_of_teams.txt.
+# Write PRIMARY SECONDARY, separated by a space, hyphen, comma or slash.
+# PRIMARY is used in bright paint cells and on the starting grid.
+# SECONDARY is used in normal/dim paint cells such as the front spoiler.
+# A single colour name means the same hue for both roles.
+#
+# Available Spectrum hues:
+# black, blue, red, magenta, green, cyan, yellow, white
+
+bright  white   red
+dim     yellow  blue
+bright  red     red
+dim     cyan    green
+dim     blue    yellow
+bright  yellow  yellow

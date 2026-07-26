@@ -1,0 +1,33 @@
+# Formula One driver-name template
+# Lines beginning with # and empty lines are ignored.
+#
+# 24 drivers, maximum 10 ASCII characters per name.
+#
+# The list has been created from the final standings in the year 1985
+
+Prost
+Senna
+Schumacher
+Hamilton
+Bottas
+Verstappen
+Lauda
+Mansell
+Piquet
+Leclerc
+Vettel
+Ricciardo
+Patrese
+Alonso
+Sainz
+Norris
+Albon
+Perez
+
+# Customizable drivers
+Munday
+Wheelhouse
+Raikkonen
+Stroll
+Gasly
+Ocon

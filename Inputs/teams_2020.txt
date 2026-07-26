@@ -1,0 +1,13 @@
+# Formula One team-name template
+# Lines beginning with # and empty lines are ignored.
+#
+# 6 teams, maximum 8 ASCII characters per name.
+#
+# The list is based on the 2020 Mod by R. Martins and J. Pois
+
+Red Bull
+Ferrari
+Mercedes
+Williams
+McLaren
+Renault

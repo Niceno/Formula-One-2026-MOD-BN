@@ -1,0 +1,18 @@
+# Original 1989 Formula One calendar for tweak-f1.py
+# Format: RACE (max 8) | CIRCUIT (max 18) | LAPS (1-99)
+Brazil   | Jacarepagua        | 61
+S.Marino | Imola              | 58
+Monaco   | Circuit de Monaco  | 77
+Mexico   | Hermanos Rodriguez | 69
+U.S.A.   | Phoenix Street     | 75
+Canada   | Gilles-Villeneuve  | 69
+France   | Paul Ricard        | 80
+Britain  | Silverstone        | 64
+Germany  | Hockenheimring     | 45
+Hungary  | Hungaroring        | 77
+Belgium  | Spa-Francorchamps  | 44
+Italy    | Monza              | 53
+Portugal | Estoril            | 71
+Spain    | Jerez              | 72
+Japan    | Suzuka             | 53
+Austral. | Adelaide Street    | 70
