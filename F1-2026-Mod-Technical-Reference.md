@@ -13,14 +13,15 @@
 
 This document describes the current snapshot:
 
-`F1-2026-Mod-Cost-Limits-Fixed.sna`
+`F1-2026-Mod.sna`
 
 It combines the original 1985 teams, drivers and race data with the improved
 MOD2020 artwork, plus the colour, temperature in Celsius, scoring, top-view
-symmetry, first-season starting-money and faster progress-bar corrections made
+symmetry, every-season starting-money and faster progress-bar corrections made
 during this project, together with suppression of the transient chequerboard
-behind the race-scene country name and corrections that limit both component
-purchases and improvements before money is deducted.
+behind the race-scene country name, safe handling of sponsor ID zero and
+corrections that limit both component purchases and improvements before money
+is deducted.
 
 The memory map describes the final file and the technical changes it contains.
 Temporary development snapshots are deliberately not named: their filenames and
@@ -30,7 +31,7 @@ retained as the named comparison baseline.
 
 Verified SHA-256:
 
-`4E4779A801DF735E6C6F3D9DDD931CBD08F3EF7721CDA256285E99B0CCE031BD`
+`bec919ee6fe6f09ebdc8a2584fe18e6bf9c3ed19abdd4aecb3ad3fe2cf648745`
 
 ## Motivation and history
 
@@ -100,7 +101,8 @@ continue developing the game.
     - [Race-worthiness test](#race-worthiness-test)
     - [Why many computer cars can miss one race](#why-many-computer-cars-can-miss-one-race)
   - [17. Sponsorship and computer-team finances](#17-sponsorship-and-computer-team-finances)
-    - [First-season starting-money correction](#first-season-starting-money-correction)
+    - [Zero-sponsor indexing correction](#zero-sponsor-indexing-correction)
+    - [Starting-money correction for every season](#starting-money-correction-for-every-season)
   - [18. Tyre choice, tyre wear and pit stops](#18-tyre-choice-tyre-wear-and-pit-stops)
     - [Runtime values](#runtime-values)
     - [Initial tyre/track suitability penalty](#initial-tyretrack-suitability-penalty)
@@ -292,8 +294,9 @@ with the system-variable and channel boundaries refined according to Chapters
 | `$9FDB-$9FE6`  [40923-40934] |    12 | Normal-flow skip and final improvement-limit helper fragment                                         |
 | `$B3C5-$B3D5`  [46021-46037] |    17 | Draw the pit arrow and assign its flashing screen attribute                                          |
 | `$B97D-$B9AF`  [47485-47535] |    51 | Sponsor selection/reset and starting-balance setup                                                   |
+| `$BA1C-$BA26`  [47644-47654] |    11 | Sponsor-ID-to-value pointer helper; ID zero safely maps to ROM                                       |
 | `$BBD0-$BC22`  [48080-48162] |    83 | Sponsorship-based starting-balance calculation                                                       |
-| `$BC0C-$BC12`  [48140-48146] |     7 | Hook to the first-season-only balance wrapper                                                        |
+| `$BC0C-$BC12`  [48140-48146] |     7 | Hook to the every-season balance wrapper                                                             |
 | `$BCC8-$BCD3`  [48328-48339] |    12 | Number-of-players skip and first improvement-limit helper fragment                                   |
 | `$BED0-$BEDB`  [48848-48859] |    12 | Difficulty-screen skip and second improvement-limit helper fragment                                  |
 | `$DCD3-$DCD5`  [56531-56533] |     3 | Hook to the context-aware pre-payment clamp wrapper                                                   |
@@ -302,7 +305,7 @@ with the system-variable and channel boundaries refined according to Chapters
 | `$E21C-$E21E`  [57884-57886] |     3 | Hook to the faster car-management progress-bar routine                                               |
 | `$E99A-$EA6F`  [59802-60015] |   214 | **Main game sequence begins here; effectively the game’s top-level organiser**                       |
 | `$EA70-$EA89`  [60016-60041] |    26 | Added Fahrenheit-to-Celsius routine                                                                  |
-| `$EA8A-$EA98`  [60042-60056] |    15 | Added first-season-only starting-money wrapper                                                       |
+| `$EA8A-$EA98`  [60042-60056] |    15 | Added every-season starting-money wrapper                                                            |
 | `$EA99-$EAB2`  [60057-60082] |    26 | Added faster progress-bar renderer                                                                   |
 | `$EAB3-$EAC4`  [60083-60100] |    18 | Added fixed-blue border/PAPER routine and colour constant                                            |
 | `$EAC5-$EAE1`  [60101-60129] |    29 | Added fixed-black/fixed-yellow border/PAPER routine and constants                                    |
@@ -383,7 +386,7 @@ first byte will sometimes display local data as nonsensical instructions.
 | Routine                                                     | Z80 address                 | SNA file offset             | Size     |
 |-------------------------------------------------------------|----------------------------:|----------------------------:|---------:|
 | Fahrenheit-to-Celsius conversion                            | `$EA70-$EA89` [60016-60041] | `$AA8B-$AAA4` [43659-43684] | 26 bytes |
-| First-season-only starting-money wrapper                    | `$EA8A-$EA98` [60042-60056] | `$AAA5-$AAB3` [43685-43699] | 15 bytes |
+| Every-season starting-money wrapper                         | `$EA8A-$EA98` [60042-60056] | `$AAA5-$AAB3` [43685-43699] | 15 bytes |
 | Faster car-management progress-bar renderer                 | `$EA99-$EAB2` [60057-60082] | `$AAB4-$AACD` [43700-43725] | 26 bytes |
 | Fixed-blue border/PAPER routine and constant                | `$EAB3-$EAC4` [60083-60100] | `$AACE-$AADF` [43726-43743] | 18 bytes |
 | Fixed-black/fixed-yellow border/PAPER routine and constants | `$EAC5-$EAE1` [60101-60129] | `$AAE0-$AAFC` [43744-43772] | 29 bytes |
@@ -1738,14 +1741,30 @@ secondary sponsor IDs were 1 and 2 and its balance was 970. The five AI teams
 had zero sponsor IDs and zero balances by design. Their grid absences were
 therefore unrelated to sponsor income.
 
-#### First-season starting-money correction
+#### Zero-sponsor indexing correction
 
-The final snapshot doubles the calculated balance only at the beginning of a
-completely new game. New-game setup at `$BCC0` [48320] sets the season-offset
-byte at `$8BDC` [35804] to zero. The sponsorship and balance routines run while
-it is still zero; `$C90E` [51470] increments it afterward, making the displayed
-opening season 1985. In every later season the byte is already nonzero when the
-balance is calculated.
+The original helper at `$BA1C-$BA26` [47644-47654] treated every sponsor ID as
+a one-based index into `$880D-$8819` [34829-34841]. For ID zero, `DEC E`
+wrapped the index to `$FF` [255], producing pointer `$890C` [35084]: the space
+between `A` and `to` in `Press A to M for Selection`. A sponsor-value update
+could consequently replace that space with a changing character.
+
+The corrected 11-byte helper returns `$0000` for ID zero, using ROM as a
+harmless write sink, while IDs 1-13 still map exactly to `$880D-$8819`:
+
+```text
+19 7E 6F 62 B7 C8 11 0C 88 19 C9
+```
+
+The two callers remain at `$B9D5` [47573] and `$B9DD` [47581]. The correction
+changes no sponsor name, value or valid sponsor assignment.
+
+#### Starting-money correction for every season
+
+The game calculates a new sponsorship-based balance for each human-controlled
+team at the beginning of every season. The modified snapshot doubles that
+complete calculated amount every time, allowing a human team to begin with two
+drivers under approximately the same practical conditions as the AI teams.
 
 The original seven-byte sequence at `$BC0C-$BC12` [48140-48146] was:
 
@@ -1763,29 +1782,28 @@ CD 8A EA 00 00 00 00
 The 15-byte wrapper at `$EA8A-$EA98` [60042-60056] is:
 
 ```text
-3A DC 8B B7 20 01 29 EB 21 7D 88 CD 35 BC C9
+3A DC 8B B7 20 00 29 EB 21 7D 88 CD 35 BC C9
 ```
 
 Disassembled:
 
 ```text
-LD A,($8BDC)       ; address 35804 decimal; zero only before opening season
+LD A,($8BDC)       ; address 35804 decimal; season-offset byte
 OR A
-JR NZ,normal
-ADD HL,HL          ; double the complete calculated balance
-normal:
+JR NZ,$EA90        ; zero displacement: next instruction in either case
+ADD HL,HL          ; double the complete calculated balance every season
 EX DE,HL
 LD HL,$887D        ; address 34941 decimal
 CALL $BC35         ; address 48181 decimal; write this team's balance
 RET
 ```
 
-With the initial sponsor values, the opening balance is therefore `901*2 = 1802`.
-The wrapper doubles the complete result, so it remains correct even if the
-selected sponsor values differ. Later seasons retain the original calculation,
-with no doubling. Purchases, prize money, component costs and other
-income/expense routines are untouched. Computer-controlled teams remain
-unaffected because the original loop continues to skip them.
+Changing the relative-jump displacement at `$EA8F` [60047] from `$01` to `$00`
+makes both outcomes continue at `$EA90` [60048]. With the initial sponsor
+values, the balance is `901*2 = 1802`. The result remains proportional when
+sponsor values change in later seasons. Purchases, prize money, component costs
+and other income/expense routines are untouched. Computer-controlled teams
+remain unaffected because the original loop continues to skip them.
 
 ### 18. Tyre choice, tyre wear and pit stops
 
@@ -2005,7 +2023,9 @@ the retained changes are:
 - horizontally symmetric shared engine artwork;
 - mirrored upper/lower rear-suspension artwork;
 - original 1985 championship points: 9, 6, 4, 3, 2, 1;
-- first-season starting money doubled from 901 to 1802 for human-controlled teams only;
+- sponsorship-based starting money doubled for human-controlled teams at the
+  beginning of every season;
+- sponsor ID zero handled without corrupting the sponsor-selection prompt;
 - car-management progress bars animated approximately four times faster;
 - the custom character set and selected pre-rendered text converted to the new font;
 - revised `GOODYEAR`, `Mobil`, `ELAPSED`, `GRAND PRIX`, Pirelli and John Player Special raster artwork;
@@ -2023,11 +2043,12 @@ This is a history of changes, not a chain of build files. The obsolete
 intermediate filenames and per-step hashes have intentionally been omitted.
 This map is specific to the final snapshot named at the top. The RNG, AI
 maintenance/no-show behaviour, underlying sponsorship model, tyre model and
-fixed car-number behaviour are documented discoveries; the first-season balance
-doubling and context-aware purchase/improvement limits are the stated financial
-gameplay changes, while the progress-bar patch changes presentation speed only.
-Addresses that hold free space, modified code or replacement data should not be
-assumed identical in another snapshot without a byte comparison.
+fixed car-number behaviour are documented discoveries. The sponsor-pointer
+correction, every-season balance doubling and context-aware
+purchase/improvement limits are gameplay fixes, while the progress-bar patch
+changes presentation speed only. Addresses that hold free space, modified code
+or replacement data should not be assumed identical in another snapshot without
+a byte comparison.
 
 ### 21. Verification against `F1-1985-Original.sna` and gameplay screenshots
 
@@ -2100,7 +2121,7 @@ been isolated in the disassembly; this is listed as an open item in 21.3.
 
 These related patches are included in the final snapshot and operate on the
 same 49,179-byte image as the other documented changes. They were added after
-the Celsius, first-season-money, faster-progress-bar and starting-grid-frame
+the Celsius, starting-money, faster-progress-bar and starting-grid-frame
 corrections described earlier.
 
 #### Purpose and original problem
