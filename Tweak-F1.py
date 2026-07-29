@@ -10,6 +10,9 @@ Example:
     python Tweak-F1.py --automatic-human-pit-stops \
         --game=F1-game.sna --suffix=Automatic-Pit-Stops
 
+    python Tweak-F1.py --random-incidents=rare \
+        --game=F1-game.sna --suffix=Rare-Incidents
+
 Each names file contains one name per line. Empty lines and lines beginning
 with # are ignored. A races file contains exactly sixteen pipe-separated lines
 in the form RACE | CIRCUIT | LAPS. The source snapshot is never overwritten.
@@ -102,6 +105,26 @@ AUTOMATIC_HUMAN_PIT_STOP_JUMPS = (
     (0xD2EE, bytes((0xC2, 0xF4, 0xD2))),
 )
 THREE_NOPS = bytes((0x00, 0x00, 0x00))
+
+# The original random-incident gate at $C210 requires five random bits to be
+# set, giving one incident chance in 32 per car per lap. The compact replacement
+# tests six or seven bits and pads the remainder of the original 25-byte block
+# with NOPs, leaving the following CALL at $C229 at its original address.
+RANDOM_INCIDENT_GATE_ADDRESS = 0xC210
+RANDOM_INCIDENT_GATE_SIZE = 25
+RANDOM_INCIDENT_GATES = {
+    "original": bytes.fromhex(
+        "CB 6F CA E4 C0 "
+        "CB 67 CA E4 C0 "
+        "CB 5F CA E4 C0 "
+        "CB 57 CA E4 C0 "
+        "CB 4F CA E4 C0"
+    ),
+    "reduced": bytes.fromhex("E6 3F FE 3F C2 E4 C0") + bytes(18),
+    "rare": bytes.fromhex("E6 7F FE 7F C2 E4 C0") + bytes(18),
+}
+if any(len(gate) != RANDOM_INCIDENT_GATE_SIZE for gate in RANDOM_INCIDENT_GATES.values()):
+    raise ValueError("Invalid built-in random-incident gate")
 
 # Standard ZX Spectrum colour numbers used by the INK and PAPER attribute bits.
 COLOURS = {
@@ -732,6 +755,32 @@ def apply_automatic_human_pit_stops(
         allowed_offsets.update(range(offset, offset + len(original)))
 
 
+def apply_random_incident_rate(
+    snapshot: bytearray,
+    setting: str | None,
+    allowed_offsets: set[int],
+) -> None:
+    """Select the original, reduced or rare random-incident probability."""
+    if setting is None:
+        return
+
+    offset = sna_offset(RANDOM_INCIDENT_GATE_ADDRESS)
+    current = bytes(snapshot[offset : offset + RANDOM_INCIDENT_GATE_SIZE])
+
+    # All three forms are accepted so the option is reversible and idempotent.
+    # Anything else may be unrelated code and is therefore rejected.
+    if current not in RANDOM_INCIDENT_GATES.values():
+        found = current.hex(" ").upper()
+        raise ValueError(
+            f"Unexpected snapshot layout at ${RANDOM_INCIDENT_GATE_ADDRESS:04X}; "
+            f"the random-incident gate is not recognised (found {found})"
+        )
+
+    replacement = RANDOM_INCIDENT_GATES[setting]
+    snapshot[offset : offset + RANDOM_INCIDENT_GATE_SIZE] = replacement
+    allowed_offsets.update(range(offset, offset + RANDOM_INCIDENT_GATE_SIZE))
+
+
 # =============================================================================
 # 10. Assemble and verify one requested snapshot variant
 # =============================================================================
@@ -745,6 +794,7 @@ def make_variant(
     year: int | None = None,
     races: list[RaceEntry] | None = None,
     automatic_human_pit_stops: bool = False,
+    random_incidents: str | None = None,
 ) -> bytes:
     """Return a patched copy of source while proving all writes were expected."""
     # Work on a bytearray copy. The immutable source bytes are never modified.
@@ -779,6 +829,11 @@ def make_variant(
     apply_automatic_human_pit_stops(
         result,
         automatic_human_pit_stops,
+        allowed_offsets,
+    )
+    apply_random_incident_rate(
+        result,
+        random_incidents,
         allowed_offsets,
     )
 
@@ -907,6 +962,15 @@ def parse_args() -> argparse.Namespace:
             "automatically under the same conditions as computer-controlled cars"
         ),
     )
+    parser.add_argument(
+        "--random-incidents",
+        choices=tuple(RANDOM_INCIDENT_GATES),
+        metavar="{original,reduced,rare}",
+        help=(
+            "random racing-incident rate: original is 1/32 per car per lap, "
+            "reduced is 1/64, and rare is 1/128; omitted leaves the source unchanged"
+        ),
+    )
     return parser.parse_args()
 
 
@@ -928,6 +992,7 @@ def main() -> int:
         and args.races is None
         and args.colours is None
         and not args.automatic_human_pit_stops
+        and args.random_incidents is None
     ):
         print("Nothing to do; no SNA file was written.")
         return 0
@@ -975,6 +1040,7 @@ def main() -> int:
         args.year,
         races,
         args.automatic_human_pit_stops,
+        args.random_incidents,
     )
     destination = output_path(game, args.suffix)
     save_overwriting(destination, variant, game)

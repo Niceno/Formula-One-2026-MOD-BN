@@ -13,7 +13,7 @@
 
 This document describes the current snapshot:
 
-`F1-2026-Mod.sna`
+`F1-2026-Mod-Cost-Limits-Fixed.sna`
 
 It combines the original 1985 teams, drivers and race data with the improved
 MOD2020 artwork, plus the colour, temperature in Celsius, scoring, top-view
@@ -122,19 +122,24 @@ continue developing the game.
     - [Where it comes from](#where-it-comes-from)
     - [The patch](#the-patch)
   - [24. Limiting acquisition and improvement entries](#24-limiting-acquisition-and-improvement-entries)
-  - [25. Game sections](#25-game-sections)
+  - [25. Random racing incidents and repair-related pit stops](#25-random-racing-incidents-and-repair-related-pit-stops)
+    - [Random-incident probability](#random-incident-probability)
+    - [Incident selection and codes](#incident-selection-and-codes)
+    - [Consequences and pit-stop branch](#consequences-and-pit-stop-branch)
+    - [Optional incident-rate patch](#optional-incident-rate-patch)
+  - [26. Game sections](#26-game-sections)
     - [The 24-section code map](#the-24-section-code-map)
 - [Part IV: Using `Tweak-F1.py`](#part-iv-using-tweak-f1py)
-  - [26. Purpose, scope and safeguards](#26-purpose-scope-and-safeguards)
+  - [27. Purpose, scope and safeguards](#27-purpose-scope-and-safeguards)
     - [Option-to-memory cross-reference](#option-to-memory-cross-reference)
     - [Script safety checks](#script-safety-checks)
-  - [27. Command-line use](#27-command-line-use)
+  - [28. Command-line use](#28-command-line-use)
     - [Requirements](#requirements)
     - [Basic syntax](#basic-syntax)
     - [Command-line options](#command-line-options)
     - [Examples](#examples)
     - [Output naming and overwriting](#output-naming-and-overwriting)
-  - [28. Input-file formats](#28-input-file-formats)
+  - [29. Input-file formats](#29-input-file-formats)
     - [Common input-file rules](#common-input-file-rules)
     - [Team-name file](#team-name-file)
     - [Driver-name file](#driver-name-file)
@@ -2418,7 +2423,131 @@ validation and the original component-condition calculations are unchanged.
 The existing post-payment byte clamp also remains as an additional safeguard.
 The correction applies consistently to engine, chassis and crew transactions.
 
-### 25. Game sections
+### 25. Random racing incidents and repair-related pit stops
+
+Repair-related pit stops are separate from the progressive tyre-wear and
+weather logic documented in chapter 18. Inside the main race-update routine
+beginning at `$C094` [49300], the fragment at `$C20D` [49677] gives each car
+a chance of suffering one of six racing incidents during a normal simulation
+cycle, effectively once per car per lap.
+
+#### Random-incident probability
+
+The routine calls the pseudo-random-number generator described in chapter 15,
+then requires bits 5, 4, 3, 2 and 1 of the returned byte to be set:
+
+```z80
+$C20D: CD 19 99    CALL $9919       ; obtain a pseudo-random byte in A
+
+$C210: CB 6F       BIT  5,A
+$C212: CA E4 C0    JP   Z,$C0E4     ; tested bit is zero: no incident
+$C215: CB 67       BIT  4,A
+$C217: CA E4 C0    JP   Z,$C0E4
+$C21A: CB 5F       BIT  3,A
+$C21C: CA E4 C0    JP   Z,$C0E4
+$C21F: CB 57       BIT  2,A
+$C221: CA E4 C0    JP   Z,$C0E4
+$C224: CB 4F       BIT  1,A
+$C226: CA E4 C0    JP   Z,$C0E4
+```
+
+Each bit has an equal chance of being zero or one. All five must be one, so
+the probability that a car has an incident in each lap is:
+
+```text
+1/2 x 1/2 x 1/2 x 1/2 x 1/2 = 1/32 = 3.125%
+```
+
+Bits 7, 6 and 0 are ignored. Equivalently, eight of the 256 possible bytes
+pass the test: `$3E`, `$3F`, `$7E`, `$7F`, `$BE`, `$BF`, `$FE` and `$FF`.
+
+#### Incident selection and codes
+
+After the gate succeeds, a second random byte is repeatedly reduced by six.
+The remainder in `C`, from 0 through 5, selects the incident. Adding nine
+turns that index into the game's incident code from 9 through 14:
+
+```z80
+$C229: CD 19 99    CALL $9919       ; obtain another random byte
+$C22C: 06 06       LD   B,$06
+
+$C22E: B8          CP   B
+$C22F: DA 35 C2    JP   C,$C235     ; below 6: remainder is ready
+$C232: 90          SUB  B
+$C233: 18 F9       JR   $C22E       ; reduce the value modulo 6
+
+$C235: 06 00       LD   B,$00
+$C237: 4F          LD   C,A         ; incident index 0-5
+$C238: 3E 09       LD   A,$09
+$C23A: 81          ADD  A,C         ; incident code 9-14
+$C23B: CD 3A C3    CALL $C33A       ; process/display the incident
+```
+
+| Index | Code | Reported incident                        | Condition addition | Pit stop |
+|------:|-----:|------------------------------------------|--------------------|:--------:|
+|     0 |    9 | Spun after shunt - pit stop due          | chassis +3         | yes      |
+|     1 |   10 | Spun: chassis damage - stop due          | chassis +25        | yes      |
+|     2 |   11 | Spun and lost time - no damage           | none               | no       |
+|     3 |   12 | Engine sick - coming into pits           | engine +25         | yes      |
+|     4 |   13 | Gearbox problems - pit stop due          | engine +3          | yes      |
+|     5 |   14 | Puncture - pit stop required             | tyre penalty +240  | yes      |
+
+The condition additions come from the six-byte tables at `$6BD1-$6BD6`
+[27601-27606] for the engine, `$6BD7-$6BDC` [27607-27612] for the chassis
+and `$6BDD-$6BE2` [27613-27618] for the tyre penalty. The selected incident
+code is stored in the current car's record beginning at `$69E5` [27109].
+
+The modulo-six selection has a negligible bias because 256 is not divisible
+by six: indices 0-3 occur 43 times each, and indices 4-5 occur 42 times each.
+
+#### Consequences and pit-stop branch
+
+After applying the tabled engine, chassis or tyre consequence, the code tests
+for index 2. That is the sole harmless incident; it branches directly to the
+end of the current car update. Every other index writes the internal cycle
+markers that arrange a pit stop:
+
+```z80
+$C296: 3E 02       LD   A,$02
+$C298: B9          CP   C
+$C299: CA AB C2    JP   Z,$C2AB     ; index 2: no pit stop
+
+$C29C: 3A 0F 69    LD   A,($690F)
+$C29F: 3C          INC  A
+$C2A0: 21 86 68    LD   HL,$6886
+$C2A3: 19          ADD  HL,DE       ; DE = current car index
+$C2A4: 77          LD   (HL),A      ; schedule pit-related action
+$C2A5: 21 81 6A    LD   HL,$6A81
+$C2A8: 19          ADD  HL,DE
+$C2A9: 3C          INC  A
+$C2AA: 77          LD   (HL),A      ; store the following cycle marker
+```
+
+Five of the six incidents therefore require a pit stop. Including the small
+modulo bias, the exact probability per car per lap is `213/8192`, or about
+2.60%. Across two cars and a 60-lap race, the expected value is approximately
+3.12 repair-related pit stops. This explains why several repairs during one
+Grand Prix are common even when tyre wear and weather cause no additional
+stops.
+
+#### Optional incident-rate patch
+
+`Tweak-F1.py --random-incidents=rare` replaces the five original `BIT` tests
+with the compact gate below and fills `$C217-$C228` with `NOP`s. It requires
+seven bits instead of five, reducing the incident probability from 1/32 to
+1/128 while leaving the selector, incident codes and consequences unchanged:
+
+```z80
+$C210: E6 7F       AND  $7F
+$C212: FE 7F       CP   $7F
+$C214: C2 E4 C0    JP   NZ,$C0E4    ; condition failed: no incident
+```
+
+The `reduced` setting uses `$3F` in both instructions for a 1/64 rate;
+`original` restores the documented 1/32 gate. Omitting the option leaves the
+source snapshot's existing gate untouched.
+
+### 26. Game sections
 
 This chapter divides the game into its principal screens and phases.
 Sections 01-23 describe the normal progression through a game. Section 24 is
@@ -2470,13 +2599,15 @@ follow-on routine that fixes the identification more precisely.
 [//]: # (----------------------------------------------------------------------)
 ## Part IV: Using `Tweak-F1.py`
 
-### 26. Purpose, scope and safeguards
+### 27. Purpose, scope and safeguards
 
 `Tweak-F1.py` is a command-line patcher for making season variants of the
 documented 48K snapshot. It can replace selected names, the opening year, the
 sixteen-race calendar and the six team colour schemes. It can also apply the
 optional automatic-pit-stop modification described in
-[chapter 18](#18-tyre-choice-tyre-wear-and-pit-stops).
+[chapter 18](#18-tyre-choice-tyre-wear-and-pit-stops) and reduce the random
+repair-incident frequency described in
+[chapter 25](#25-random-racing-incidents-and-repair-related-pit-stops).
 
 Every modification option is independent. An omitted option leaves its
 corresponding game data untouched, while several options may be combined to
@@ -2501,6 +2632,7 @@ technical descriptions elsewhere in this document.
 | `--races`                           | replaces race names, circuits and lap counts          | [chapter 11](#11-original-1985-race-data) |
 | `--colours` / `--colors`            | recolours cars, number panels and grid-number boxes   | [chapters 6-9](#6-team-colours-and-spectrum-attribute-bytes) |
 | `--automatic-human-pit-stops`       | includes human cars in the automatic pit scheduler    | [chapter 18](#18-tyre-choice-tyre-wear-and-pit-stops) |
+| `--random-incidents`                | selects the 1/32, 1/64 or 1/128 incident gate         | [chapter 25](#25-random-racing-incidents-and-repair-related-pit-stops) |
 
 `--game` selects the source snapshot and `--suffix` determines the output
 filename; neither is itself a game-data modification.
@@ -2517,13 +2649,15 @@ The script applies several safeguards before writing an output file:
 5. The year patch checks for the expected `LD HL,nn` opcodes.
 6. The automatic-pit-stop patch accepts only the two verified jump
    instructions or an already-patched sequence of three `NOP` instructions.
-7. The script refuses to use the source snapshot itself as the output path.
+7. The random-incident patch accepts only the verified `original`, `reduced`
+   or `rare` instruction block at `$C210-$C228` [49680-49704].
+8. The script refuses to use the source snapshot itself as the output path.
 
 These checks protect the original and catch unexpected layouts or accidental
 writes. They do not make an arbitrary snapshot compatible with this memory
 map; the selected source must still use the documented game layout.
 
-### 27. Command-line use
+### 28. Command-line use
 
 #### Requirements
 
@@ -2553,11 +2687,13 @@ python .\Tweak-F1.py `
 `MODIFICATION-OPTION` is a placeholder in the example, not literal text. It
 may be replaced by one or more of `--year`, `--teams`, `--drivers`,
 `--sponsors`, `--races`, `--colours` or
-`--automatic-human-pit-stops`.
+`--automatic-human-pit-stops`, or by `--random-incidents` with its required
+value.
 
 Options that take a value accept either an equals sign or a following
 argument. For example, `--year=1991` and `--year 1991` are equivalent.
-`--automatic-human-pit-stops` is a switch and takes no value.
+Likewise, `--random-incidents=rare` and `--random-incidents rare` are
+equivalent. `--automatic-human-pit-stops` is a switch and takes no value.
 
 If no modification option is supplied, the script reports that there is
 nothing to do and writes no SNA file.
@@ -2575,9 +2711,10 @@ nothing to do and writes no SNA file.
 | `--races`                           | text-file path    | no       | complete sixteen-race schedule |
 | `--colours`, `--colors`             | text-file path    | no       | team-colour list |
 | `--automatic-human-pit-stops`       | none              | no       | enable automatic stops for human cars |
+| `--random-incidents`                | `original`, `reduced` or `rare` | no | select a 1/32, 1/64 or 1/128 incident rate |
 
 The year must be a four-digit integer from 1000 through 9999. The file-based
-options are described in [chapter 28](#28-input-file-formats) below.
+options are described in [chapter 29](#29-input-file-formats) below.
 
 #### Examples
 
@@ -2609,6 +2746,19 @@ It may instead be combined with a season variant by adding the switch to the
 first command. If the option is omitted, human-controlled cars retain the
 original manual-pit-stop behaviour.
 
+The random-incident frequency can be reduced independently:
+
+```powershell
+python .\Tweak-F1.py `
+    --game=F1-2026-Mod.sna `
+    --suffix=Rare-Incidents `
+    --random-incidents=rare
+```
+
+`reduced` selects 1/64 and `rare` selects 1/128. `original` restores the
+original 1/32 instruction block in a previously patched snapshot. If the
+option is omitted, the incident gate in the source is preserved.
+
 #### Output naming and overwriting
 
 The output is written directly to the current working directory. Its name is
@@ -2627,7 +2777,7 @@ otherwise produce the same path. No file is written when validation fails;
 the error is printed with an `ERROR:` prefix and the script exits with a
 nonzero status.
 
-### 28. Input-file formats
+### 29. Input-file formats
 
 #### Common input-file rules
 
