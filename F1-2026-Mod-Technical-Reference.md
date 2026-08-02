@@ -31,7 +31,7 @@ retained as the named comparison baseline.
 
 Verified SHA-256:
 
-`bec919ee6fe6f09ebdc8a2584fe18e6bf9c3ed19abdd4aecb3ad3fe2cf648745`
+`f614e925cf419f70177e673c25ec31940f0e661d65de0805f4081008ae5fb705`
 
 ## Motivation and history
 
@@ -111,9 +111,9 @@ continue developing the game.
   - [19. Fixed car numbers and the defending champion](#19-fixed-car-numbers-and-the-defending-champion)
   - [20. Modification history represented by the final snapshot](#20-modification-history-represented-by-the-final-snapshot)
   - [21. Verification against `F1-1985-Original.sna` and gameplay screenshots](#21-verification-against-f1-1985-originalsna-and-gameplay-screenshots)
-    - [21.1 Confirmed identical fixed data](#211-confirmed-identical-fixed-data)
-    - [21.2 New finding: driver cost is derived, not tabled](#212-new-finding-driver-cost-is-derived-not-tabled)
-    - [21.3 Open items for further disassembly](#213-open-items-for-further-disassembly)
+    - [Confirmed identical fixed data](#211-confirmed-identical-fixed-data)
+    - [New finding: driver cost is derived, not tabled](#212-new-finding-driver-cost-is-derived-not-tabled)
+    - [Open items for further disassembly](#213-open-items-for-further-disassembly)
   - [22. Screen border-colour independence patches](#22-screen-border-colour-independence-patches)
     - [Purpose and original problem](#purpose-and-original-problem)
     - [Added data and routines](#added-data-and-routines)
@@ -1982,6 +1982,43 @@ This modification has not been applied to the current snapshot.
 The optional `--automatic-human-pit-stops` switch described in
 [Part IV](#part-iv-using-tweak-f1py) applies exactly this six-byte patch while
 leaving it absent by default.
+
+#### Second-car pit scheduling bug and permanent fix
+
+The original scheduler attempts to stagger the two cars belonging to one team.
+The first car is assigned to the next lap, while its even-numbered team-mate is
+assigned one lap later.  The distinction is made by these five bytes near the
+end of routine `$D2B4` [53940]:
+
+```z80
+$D2C9: CB 43       BIT  0,E         ; distinguish the two cars in a team
+$D2CB: 28 01       JR   Z,$D2CE     ; first car: retain next-lap appointment
+$D2CD: 3C          INC  A           ; second car: postpone by one more lap
+```
+
+However, the scheduler runs again on every lap and does not preserve an
+existing future appointment.  Before an even-numbered car reaches its assigned
+lap, the same code moves its appointment forward again.  The car can therefore
+continue racing indefinitely without entering the pits.  The rescheduling can
+also overwrite a manual pit request made by pressing `P`.
+
+The permanent correction replaces `$D2C9-$D2CD` [53961-53965] with five `NOP`
+instructions:
+
+```z80
+$D2C9: 00          NOP
+$D2CA: 00          NOP
+$D2CB: 00          NOP
+$D2CC: 00          NOP
+$D2CD: 00          NOP
+```
+
+Both cars are consequently assigned to the next lap.  This removes the unfair
+penalty applied to every second car, restores automatic stops for affected
+computer-controlled cars and prevents manual requests for affected
+human-controlled cars from being overwritten.  Emulator testing confirmed that
+even-numbered cars, including car 12, now enter the pits correctly.  This is a
+permanent game correction rather than an optional `Tweak-F1.py` feature.
 
 ### 19. Fixed car numbers and the defending champion
 
