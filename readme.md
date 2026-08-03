@@ -25,3 +25,11 @@ MOD2020-derived artwork and snapshot is being requested.
 - Original game: G. B. Munday and B. P. Wheelhouse
 - MOD2020: R. Martins and J. Pois
 - 2026 modification, documentation and tools: Bojan Niceno
+
+## Acknowledgements
+
+Development of this modification was assisted by OpenAI Codex, particularly
+in the reverse engineering of the Z80 program, analysis and patching of SNA
+snapshots, development of `Tweak-F1.py`, and preparation of the technical
+documentation. All design decisions, testing and final responsibility remain
+with Bojan Niceno.
