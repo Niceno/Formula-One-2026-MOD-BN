@@ -1,18 +1,18 @@
 # Actual 1985 Formula One calendar for tweak-f1.py
 # Format: RACE (max 8) | CIRCUIT (max 18) | LAPS (1-99)
-Brazil   | Jacarepagua       | 61
-Portugal | Estoril           | 67
-S.Marino | Imola             | 60
-Monaco   | Circuit de Monaco | 78
-Canada   | Gilles Villeneuve | 70
-U.S.A.   | Detroit Street    | 63
-France   | Paul Ricard       | 53
-Britain  | Silverstone       | 65
-Germany  | Nurburgring       | 67
-Austria  | Osterreichring    | 52
-Dutch    | Zandvoort         | 70
-Italy    | Monza             | 51
-Belgium  | Spa-Francorchamps | 43
-Europe   | Brands Hatch      | 75
-S.Africa | Kyalami           | 75
-Austral. | Adelaide Street   | 82
+Brazil   | Jacarepagua        | 61
+Portugal | Estoril            | 67
+S.Marino | Imola              | 60
+Monaco   | Circuit de Monaco  | 78
+Canada   | Gilles Villeneuve  | 70
+U.S.A.   | Detroit Street     | 63
+France   | Paul Ricard        | 53
+Britain  | Silverstone        | 65
+Germany  | Nurburgring        | 67
+Austria  | Osterreichring     | 52
+Dutch    | Zandvoort          | 70
+Italy    | Monza              | 51
+Belgium  | Spa-Francorchamps  | 43
+Europe   | Brands Hatch       | 75
+S.Africa | Kyalami            | 75
+Austral. | Adelaide Street    | 82
