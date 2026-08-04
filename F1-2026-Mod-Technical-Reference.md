@@ -31,7 +31,7 @@ retained as the named comparison baseline.
 
 Verified SHA-256:
 
-`f614e925cf419f70177e673c25ec31940f0e661d65de0805f4081008ae5fb705`
+`450257ed97fda4962713df0c21d104959ee57022654741edcf4d2e64f2303663`
 
 ## Motivation and history
 
@@ -80,6 +80,7 @@ continue developing the game.
   - [6. Team colours and Spectrum attribute bytes](#6-team-colours-and-spectrum-attribute-bytes)
   - [7. Side-view car graphics](#7-side-view-car-graphics)
   - [8. Top-view car graphics](#8-top-view-car-graphics)
+    - [Car-number glyphs 9-12](#car-number-glyphs-9-12)
     - [Final Brabham detail corrections](#final-brabham-detail-corrections)
     - [Shared engine symmetry correction](#shared-engine-symmetry-correction)
     - [Shared rear-suspension symmetry correction](#shared-rear-suspension-symmetry-correction)
@@ -841,6 +842,30 @@ Relevant code:
 - `$A188` [41352]: original sprite/attribute blitter;
 - `$A215` [41493]: clipping and setup;
 - `$A8AA` [43178]: record-driven car drawing.
+
+#### Car-number glyphs 9-12
+
+The shared car-number bitmap table occupies `$7DC8-$7E27` [32200-32295],
+with one eight-byte glyph for each car number. The preceding table at
+`$7DB0-$7DC7` [32176-32199] contains twelve little-endian pointers to those
+glyphs. The same glyphs are used when composing cars in the top and side
+views; the larger starting-grid number boxes in chapter 9 are separate
+artwork.
+
+The glyphs for cars 9-12 were redrawn to sit more naturally within the
+revised car shapes. Their final locations and bytes are:
+
+| Car | Address                     | Final bytes               |
+|----:|-----------------------------|---------------------------|
+|   9 | `$7E08-$7E0F` [32264-32271] | `FF F9 F6 F6 F8 FE F9 FF` |
+|  10 | `$7E10-$7E17` [32272-32279] | `FF D9 96 D6 D6 D6 D9 FF` |
+|  11 | `$7E18-$7E1F` [32280-32287] | `FF ED C9 ED ED ED ED FF` |
+|  12 | `$7E20-$7E27` [32288-32295] | `FF D9 96 DE D9 D7 D0 FF` |
+
+These bitmaps use inverse storage: a cleared bit forms a visible dark stroke,
+while a set bit leaves the surrounding number panel unchanged. Only glyph
+records 9-12 were replaced; glyphs 1-8 and all unrelated data remain
+unchanged.
 
 #### Final Brabham detail corrections
 
@@ -2054,6 +2079,7 @@ the retained changes are:
 - original 1985 lap counts, records, previous winners, lengths and year bases;
 - MOD2020 car and scene artwork;
 - classic team palette, including black Lotus and yellow Renault;
+- revised car-number glyphs for cars 9-12;
 - yellow starting-grid boxes for cars 11 and 12;
 - correctly converted and labelled Celsius temperatures;
 - black Brabham rear wing and windshield details in the top view;
