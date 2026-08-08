@@ -17,11 +17,11 @@ This document describes the current snapshot:
 
 It combines the original 1985 teams, drivers and race data with the improved
 MOD2020 artwork, plus the colour, temperature in Celsius, scoring, top-view
-symmetry, every-season starting-money and faster progress-bar corrections made
-during this project, together with suppression of the transient chequerboard
-behind the race-scene country name, safe handling of sponsor ID zero and
-corrections that limit both component purchases and improvements before money
-is deducted.
+symmetry and faster progress-bar corrections made during this project, together
+with suppression of the transient chequerboard behind the race-scene country
+name, safe handling of sponsor ID zero and corrections that limit both component
+purchases and improvements before money is deducted. An optional gameplay
+adjustment can double each season's starting money through `Tweak-F1.py`.
 
 The memory map describes the final file and the technical changes it contains.
 Temporary development snapshots are deliberately not named: their filenames and
@@ -31,7 +31,7 @@ retained as the named comparison baseline.
 
 Verified SHA-256:
 
-`f7b533258657b80dab91046e566d2ee8bfabb137cea577609e5a8d3c6a98396a`
+`4833e1c99ac8ca9fae6ba6c2255a53859470f98544475d363c03edebcda1b481`
 
 ## Motivation and history
 
@@ -103,7 +103,7 @@ continue developing the game.
     - [Why many computer cars can miss one race](#why-many-computer-cars-can-miss-one-race)
   - [17. Sponsorship and computer-team finances](#17-sponsorship-and-computer-team-finances)
     - [Zero-sponsor indexing correction](#zero-sponsor-indexing-correction)
-    - [Starting-money correction for every season](#starting-money-correction-for-every-season)
+    - [Optional double starting money](#optional-double-starting-money)
   - [18. Tyre choice, tyre wear and pit stops](#18-tyre-choice-tyre-wear-and-pit-stops)
     - [Runtime values](#runtime-values)
     - [Initial tyre/track suitability penalty](#initial-tyretrack-suitability-penalty)
@@ -297,16 +297,16 @@ with the system-variable and channel boundaries refined according to Chapters
 | `$B97D-$B9AF`  [47485-47535] |    51 | Sponsor selection/reset and starting-balance setup                                                   |
 | `$BA1C-$BA26`  [47644-47654] |    11 | Sponsor-ID-to-value pointer helper; ID zero safely maps to ROM                                       |
 | `$BBD0-$BC22`  [48080-48162] |    83 | Sponsorship-based starting-balance calculation                                                       |
-| `$BC0C-$BC12`  [48140-48146] |     7 | Hook to the every-season balance wrapper                                                             |
+| `$BC0C-$BC12`  [48140-48146] |     7 | Original balance sequence; optional hook point for double starting money                             |
 | `$BCC8-$BCD3`  [48328-48339] |    12 | Number-of-players skip and first improvement-limit helper fragment                                   |
 | `$BED0-$BEDB`  [48848-48859] |    12 | Difficulty-screen skip and second improvement-limit helper fragment                                  |
-| `$DCD3-$DCD5`  [56531-56533] |     3 | Hook to the context-aware pre-payment clamp wrapper                                                   |
+| `$DCD3-$DCD5`  [56531-56533] |     3 | Hook to the context-aware pre-payment clamp wrapper                                                  |
 | `$E182-$E184`  [57730-57732] |     3 | Acquisition path redirected through the purchase-mode marker                                         |
 | `$E188-$E18A`  [57736-57738] |     3 | Improvement path redirected through the dynamic-limit calculator                                     |
 | `$E21C-$E21E`  [57884-57886] |     3 | Hook to the faster car-management progress-bar routine                                               |
 | `$E99A-$EA6F`  [59802-60015] |   214 | **Main game sequence begins here; effectively the game’s top-level organiser**                       |
 | `$EA70-$EA89`  [60016-60041] |    26 | Added Fahrenheit-to-Celsius routine                                                                  |
-| `$EA8A-$EA98`  [60042-60056] |    15 | Added every-season starting-money wrapper                                                            |
+| `$EA8A-$EA98`  [60042-60056] |    15 | Dormant optional every-season double-starting-money wrapper                                          |
 | `$EA99-$EAB2`  [60057-60082] |    26 | Added faster progress-bar renderer                                                                   |
 | `$EAB3-$EAC4`  [60083-60100] |    18 | Added fixed-blue border/PAPER routine and colour constant                                            |
 | `$EAC5-$EAE1`  [60101-60129] |    29 | Added fixed-black/fixed-yellow border/PAPER routine and constants                                    |
@@ -387,7 +387,7 @@ first byte will sometimes display local data as nonsensical instructions.
 | Routine                                                     | Z80 address                 | SNA file offset             | Size     |
 |-------------------------------------------------------------|----------------------------:|----------------------------:|---------:|
 | Fahrenheit-to-Celsius conversion                            | `$EA70-$EA89` [60016-60041] | `$AA8B-$AAA4` [43659-43684] | 26 bytes |
-| Every-season starting-money wrapper                         | `$EA8A-$EA98` [60042-60056] | `$AAA5-$AAB3` [43685-43699] | 15 bytes |
+| Optional every-season double-starting-money wrapper         | `$EA8A-$EA98` [60042-60056] | `$AAA5-$AAB3` [43685-43699] | 15 bytes |
 | Faster car-management progress-bar renderer                 | `$EA99-$EAB2` [60057-60082] | `$AAB4-$AACD` [43700-43725] | 26 bytes |
 | Fixed-blue border/PAPER routine and constant                | `$EAB3-$EAC4` [60083-60100] | `$AACE-$AADF` [43726-43743] | 18 bytes |
 | Fixed-black/fixed-yellow border/PAPER routine and constants | `$EAC5-$EAE1` [60101-60129] | `$AAE0-$AAFC` [43744-43772] | 29 bytes |
@@ -1793,27 +1793,29 @@ harmless write sink, while IDs 1-13 still map exactly to `$880D-$8819`:
 The two callers remain at `$B9D5` [47573] and `$B9DD` [47581]. The correction
 changes no sponsor name, value or valid sponsor assignment.
 
-#### Starting-money correction for every season
+#### Optional double starting money
 
 The game calculates a new sponsorship-based balance for each human-controlled
-team at the beginning of every season. The modified snapshot doubles that
-complete calculated amount every time, allowing a human team to begin with two
-drivers under approximately the same practical conditions as the AI teams.
+team at the beginning of every season. The canonical snapshot preserves the
+normal calculation. Players who prefer enough money to begin with two drivers,
+under approximately the same practical conditions as the AI teams, can enable
+the optional `--double-starting-money` adjustment in `Tweak-F1.py`.
 
-The original seven-byte sequence at `$BC0C-$BC12` [48140-48146] was:
+The canonical seven-byte sequence at `$BC0C-$BC12` [48140-48146] is:
 
 ```text
 EB 21 7D 88 CD 35 BC
 ```
 
-It has been replaced with a call to the wrapper at `$EA8A` [60042] followed by
-four NOPs:
+The option replaces it with a call to the wrapper at `$EA8A` [60042], followed
+by four NOPs:
 
 ```text
 CD 8A EA 00 00 00 00
 ```
 
-The 15-byte wrapper at `$EA8A-$EA98` [60042-60056] is:
+The 15-byte wrapper is stored at `$EA8A-$EA98` [60042-60056] but remains dormant
+unless the option patches the call site:
 
 ```text
 3A DC 8B B7 20 00 29 EB 21 7D 88 CD 35 BC C9
@@ -1832,12 +1834,14 @@ CALL $BC35         ; address 48181 decimal; write this team's balance
 RET
 ```
 
-Changing the relative-jump displacement at `$EA8F` [60047] from `$01` to `$00`
-makes both outcomes continue at `$EA90` [60048]. With the initial sponsor
-values, the balance is `901*2 = 1802`. The result remains proportional when
-sponsor values change in later seasons. Purchases, prize money, component costs
-and other income/expense routines are untouched. Computer-controlled teams
-remain unaffected because the original loop continues to skip them.
+The zero relative-jump displacement at `$EA8F` [60047] makes both outcomes
+continue at `$EA90` [60048], so the option applies at the beginning of every
+season. With the initial sponsor values, the balance is `901*2 = 1802`. The
+result remains proportional when sponsor values change in later seasons.
+Purchases, prize money, component costs and other income/expense routines are
+untouched. Computer-controlled teams remain unaffected because the original
+loop continues to skip them. This is an optional gameplay-balance adjustment,
+not a correction required for normal operation.
 
 ### 18. Tyre choice, tyre wear and pit stops
 
@@ -2095,8 +2099,8 @@ the retained changes are:
 - horizontally symmetric shared engine artwork;
 - mirrored upper/lower rear-suspension artwork;
 - original 1985 championship points: 9, 6, 4, 3, 2, 1;
-- sponsorship-based starting money doubled for human-controlled teams at the
-  beginning of every season;
+- a dormant wrapper supporting optional doubled starting money for
+  human-controlled teams at the beginning of every season;
 - sponsor ID zero handled without corrupting the sponsor-selection prompt;
 - car-management progress bars animated approximately four times faster;
 - the custom character set and selected pre-rendered text converted to the new font;
@@ -2116,11 +2120,11 @@ intermediate filenames and per-step hashes have intentionally been omitted.
 This map is specific to the final snapshot named at the top. The RNG, AI
 maintenance/no-show behaviour, underlying sponsorship model, tyre model and
 fixed car-number behaviour are documented discoveries. The sponsor-pointer
-correction, every-season balance doubling and context-aware
-purchase/improvement limits are gameplay fixes, while the progress-bar patch
-changes presentation speed only. Addresses that hold free space, modified code
-or replacement data should not be assumed identical in another snapshot without
-a byte comparison.
+correction and context-aware purchase/improvement limits are gameplay fixes,
+while balance doubling is an optional gameplay adjustment and the progress-bar
+patch changes presentation speed only. Addresses that hold free space, modified
+code or replacement data should not be assumed identical in another snapshot
+without a byte comparison.
 
 ### 21. Verification against `F1-1985-Original.sna` and gameplay screenshots
 
@@ -2700,7 +2704,9 @@ sixteen-race calendar and the six team colour schemes. It can also apply the
 optional automatic-pit-stop modification described in
 [chapter 18](#18-tyre-choice-tyre-wear-and-pit-stops) and reduce the random
 repair-incident frequency described in
-[chapter 25](#25-random-racing-incidents-and-repair-related-pit-stops).
+[chapter 25](#25-random-racing-incidents-and-repair-related-pit-stops). It can
+also double the sponsorship-based starting money described in
+[chapter 17](#17-sponsorship-and-computer-team-finances).
 
 Every modification option is independent. An omitted option leaves its
 corresponding game data untouched, while several options may be combined to
@@ -2724,6 +2730,7 @@ technical descriptions elsewhere in this document.
 | `--sponsors`                        | replaces up to thirteen sponsor-name records          | [chapter 5](#5-text-tables) |
 | `--races`                           | replaces race names, circuits and lap counts          | [chapter 11](#11-original-1985-race-data) |
 | `--colours` / `--colors`            | recolours cars, number panels and grid-number boxes   | [chapters 6-9](#6-team-colours-and-spectrum-attribute-bytes) |
+| `--double-starting-money`           | doubles human-team starting balances every season     | [chapter 17](#17-sponsorship-and-computer-team-finances) |
 | `--automatic-human-pit-stops`       | includes human cars in the automatic pit scheduler    | [chapter 18](#18-tyre-choice-tyre-wear-and-pit-stops) |
 | `--random-incidents`                | selects the 1/32, 1/64 or 1/128 incident gate         | [chapter 25](#25-random-racing-incidents-and-repair-related-pit-stops) |
 
@@ -2742,9 +2749,11 @@ The script applies several safeguards before writing an output file:
 5. The year patch checks for the expected `LD HL,nn` opcodes.
 6. The automatic-pit-stop patch accepts only the two verified jump
    instructions or an already-patched sequence of three `NOP` instructions.
-7. The random-incident patch accepts only the verified `original`, `reduced`
+7. The double-starting-money patch accepts only the verified original or
+   optional call-site sequence and its documented wrapper.
+8. The random-incident patch accepts only the verified `original`, `reduced`
    or `rare` instruction block at `$C210-$C228` [49680-49704].
-8. The script refuses to use the source snapshot itself as the output path.
+9. The script refuses to use the source snapshot itself as the output path.
 
 These checks protect the original and catch unexpected layouts or accidental
 writes. They do not make an arbitrary snapshot compatible with this memory
@@ -2780,13 +2789,14 @@ python .\Tweak-F1.py `
 `MODIFICATION-OPTION` is a placeholder in the example, not literal text. It
 may be replaced by one or more of `--year`, `--teams`, `--drivers`,
 `--sponsors`, `--races`, `--colours` or
-`--automatic-human-pit-stops`, or by `--random-incidents` with its required
-value.
+`--double-starting-money`, `--automatic-human-pit-stops`, or by
+`--random-incidents` with its required value.
 
 Options that take a value accept either an equals sign or a following
 argument. For example, `--year=1991` and `--year 1991` are equivalent.
 Likewise, `--random-incidents=rare` and `--random-incidents rare` are
 equivalent. `--automatic-human-pit-stops` is a switch and takes no value.
+`--double-starting-money` is also a switch and takes no value.
 
 If no modification option is supplied, the script reports that there is
 nothing to do and writes no SNA file.
@@ -2803,6 +2813,7 @@ nothing to do and writes no SNA file.
 | `--sponsors`                        | text-file path    | no       | sponsor-name list |
 | `--races`                           | text-file path    | no       | complete sixteen-race schedule |
 | `--colours`, `--colors`             | text-file path    | no       | team-colour list |
+| `--double-starting-money`           | none              | no       | double human-team starting balances every season |
 | `--automatic-human-pit-stops`       | none              | no       | enable automatic stops for human cars |
 | `--random-incidents`                | `original`, `reduced` or `rare` | no | select a 1/32, 1/64 or 1/128 incident rate |
 
@@ -2838,6 +2849,18 @@ python .\Tweak-F1.py `
 It may instead be combined with a season variant by adding the switch to the
 first command. If the option is omitted, human-controlled cars retain the
 original manual-pit-stop behaviour.
+
+Starting money can be doubled independently for every season:
+
+```powershell
+python .\Tweak-F1.py `
+    --game=F1-2026-Mod.sna `
+    --suffix=Double-Starting-Money `
+    --double-starting-money
+```
+
+If the option is omitted, the original sponsorship-based starting balance is
+preserved.
 
 The random-incident frequency can be reduced independently:
 
