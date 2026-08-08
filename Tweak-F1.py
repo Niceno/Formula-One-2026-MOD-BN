@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Make simple text, season, schedule and colour variants of Formula One.
+"""Make text, season, schedule, colour and gameplay variants of Formula One.
 
 Example:
 
@@ -12,6 +12,9 @@ Example:
 
   python Tweak-F1.py --random-incidents=rare \
     --game=F1-game.sna --suffix=Rare-Incidents
+
+  python Tweak-F1.py --double-starting-money \
+    --game=F1-game.sna --suffix=Double-Starting-Money
 
 Each names file contains one name per line. Empty lines and lines beginning
 with # are ignored. A races file contains exactly sixteen pipe-separated lines
@@ -96,6 +99,19 @@ GRID_NUMBER_ATTRIBUTES_OFFSET = 0x20
 SEASON_YEAR_BASE_INSTRUCTIONS = (0x9854, 0xCCF0, 0xE64C, 0xE8D7)
 PREVIOUS_WINNER_YEAR_BASE_INSTRUCTION = 0xCC93
 LD_HL_IMMEDIATE_OPCODE = 0x21
+
+# The original seven-byte sequence stores the sponsorship-based starting
+# balance for one human team. The optional form calls a small wrapper in the
+# snapshot's reserved patch area; that wrapper doubles HL before performing
+# the original store operation. Both forms keep all later code at its original
+# address.
+STARTING_MONEY_HOOK_ADDRESS = 0xBC0C
+ORIGINAL_STARTING_MONEY_HOOK = bytes.fromhex("EB 21 7D 88 CD 35 BC")
+DOUBLE_STARTING_MONEY_HOOK = bytes.fromhex("CD 8A EA 00 00 00 00")
+DOUBLE_STARTING_MONEY_WRAPPER_ADDRESS = 0xEA8A
+DOUBLE_STARTING_MONEY_WRAPPER = bytes.fromhex(
+  "3A DC 8B B7 20 00 29 EB 21 7D 88 CD 35 BC C9"
+)
 
 # Two three-byte JP NZ instructions skip the automatic pit-stop scheduler when
 # the corresponding team is human-controlled. Replacing each complete
@@ -727,6 +743,59 @@ def apply_starting_year(
 # 9. Optional gameplay-code patches
 # =============================================================================
 
+def apply_double_starting_money(
+  snapshot: bytearray,
+  enabled: bool,
+  allowed_offsets: set[int],
+) -> None:
+  """Double each human team's sponsorship balance at every season start."""
+  if not enabled:
+    return
+
+  hook_offset = sna_offset(STARTING_MONEY_HOOK_ADDRESS)
+  hook = bytes(
+    snapshot[hook_offset : hook_offset + len(ORIGINAL_STARTING_MONEY_HOOK)]
+  )
+  if hook not in (ORIGINAL_STARTING_MONEY_HOOK, DOUBLE_STARTING_MONEY_HOOK):
+    found = hook.hex(" ").upper()
+    raise ValueError(
+      f"Unexpected snapshot layout at ${STARTING_MONEY_HOOK_ADDRESS:04X}; "
+      "the starting-money hook is not recognised "
+      f"(found {found})"
+    )
+
+  wrapper_offset = sna_offset(DOUBLE_STARTING_MONEY_WRAPPER_ADDRESS)
+  wrapper = bytes(
+    snapshot[
+      wrapper_offset : wrapper_offset + len(DOUBLE_STARTING_MONEY_WRAPPER)
+    ]
+  )
+  if wrapper != DOUBLE_STARTING_MONEY_WRAPPER:
+    found = wrapper.hex(" ").upper()
+    raise ValueError(
+      f"Unexpected snapshot layout at "
+      f"${DOUBLE_STARTING_MONEY_WRAPPER_ADDRESS:04X}; "
+      "the double-starting-money wrapper is not recognised "
+      f"(found {found})"
+    )
+
+  snapshot[
+    hook_offset : hook_offset + len(DOUBLE_STARTING_MONEY_HOOK)
+  ] = DOUBLE_STARTING_MONEY_HOOK
+  allowed_offsets.update(
+    range(hook_offset, hook_offset + len(DOUBLE_STARTING_MONEY_HOOK))
+  )
+
+  # Rewrite the already-verified wrapper as part of the explicit patch. This
+  # makes its participation visible to the final changed-byte allowlist while
+  # still rejecting an unexpected source layout.
+  snapshot[
+    wrapper_offset : wrapper_offset + len(DOUBLE_STARTING_MONEY_WRAPPER)
+  ] = DOUBLE_STARTING_MONEY_WRAPPER
+  allowed_offsets.update(
+    range(wrapper_offset, wrapper_offset + len(DOUBLE_STARTING_MONEY_WRAPPER))
+  )
+
 def apply_automatic_human_pit_stops(
   snapshot: bytearray,
   enabled: bool,
@@ -793,6 +862,7 @@ def make_variant(
   colours: list[ColourPair],
   year: int | None = None,
   races: list[RaceEntry] | None = None,
+  double_starting_money: bool = False,
   automatic_human_pit_stops: bool = False,
   random_incidents: str | None = None,
 ) -> bytes:
@@ -826,6 +896,11 @@ def make_variant(
   apply_team_colours(result, colours, allowed_offsets)
   if year is not None:
     apply_starting_year(result, year, allowed_offsets)
+  apply_double_starting_money(
+    result,
+    double_starting_money,
+    allowed_offsets,
+  )
   apply_automatic_human_pit_stops(
     result,
     automatic_human_pit_stops,
@@ -898,6 +973,8 @@ def parse_args() -> argparse.Namespace:
     description=(
       "Patch a Formula One 48K SNA with an optional starting year, race "
       "schedule, team-name, driver-name, sponsor-name and team-colour lists. "
+      "Optional gameplay switches can adjust starting money, automatic pit "
+      "stops and random incidents. "
       "The output is written to the current directory as a single .sna file."
     )
   )
@@ -955,6 +1032,14 @@ def parse_args() -> argparse.Namespace:
     ),
   )
   parser.add_argument(
+    "--double-starting-money",
+    action="store_true",
+    help=(
+      "double each human team's sponsorship-based starting balance "
+      "at the beginning of every season"
+    ),
+  )
+  parser.add_argument(
     "--automatic-human-pit-stops",
     action="store_true",
     help=(
@@ -991,6 +1076,7 @@ def main() -> int:
     and args.sponsors is None
     and args.races is None
     and args.colours is None
+    and not args.double_starting_money
     and not args.automatic_human_pit_stops
     and args.random_incidents is None
   ):
@@ -1039,6 +1125,7 @@ def main() -> int:
     colours,
     args.year,
     races,
+    args.double_starting_money,
     args.automatic_human_pit_stops,
     args.random_incidents,
   )

@@ -13,6 +13,7 @@ try {
     --sponsors .\Inputs\sponsors_1985.txt `
     --drivers .\Inputs\drivers_1985.txt `
     --automatic-human-pit-stops `
+    --double-starting-money `
     --random-incidents rare
 
   if ($LASTEXITCODE -ne 0) {

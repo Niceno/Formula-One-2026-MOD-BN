@@ -15,4 +15,5 @@ python ./Tweak-F1.py \
   --sponsors ./Inputs/sponsors_1991.txt \
   --drivers ./Inputs/drivers_1991.txt \
   --automatic-human-pit-stops \
+  --double-starting-money \
   --random-incidents rare
