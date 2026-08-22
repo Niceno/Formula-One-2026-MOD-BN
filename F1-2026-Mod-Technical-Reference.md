@@ -17,7 +17,7 @@ This document describes the current snapshot:
 
 It combines the original 1985 teams, drivers and race data with the improved
 MOD2020 artwork, plus the colour, temperature in Celsius, scoring, top-view
-symmetry and faster progress-bar corrections made during this project, together
+symmetry and faster progress-bar adjustments made during this project, together
 with suppression of the transient chequerboard behind the race-scene country
 name, safe handling of sponsor ID zero and corrections that limit both component
 purchases and improvements before money is deducted. An optional gameplay
@@ -47,11 +47,12 @@ disappeared.
 
 A few weeks before this project began, I came across the 2020 modification by
 R. Martins and J. Pois. Their improved artwork, considerably better than
-anything I had achieved as a youngster, inspired me to revisit the game. I used
-and refined their graphical work while making the game easier to adapt to
-different _Formula One_ seasons. Teams, drivers, sponsors, colour schemes,
-championship points, race calendars and other details can now be adjusted much
-more systematically with the enclosed Python script `Tweak-F1.py`.
+anything I had achieved as a youngster, inspired me to revisit the game.
+I used their exceptional graphical work as the foundation for this project,
+while making the game easier to adapt to different _Formula One_ seasons.
+Teams, drivers, sponsors, colour schemes, championship points, race calendars
+and other details can now be adjusted much more systematically with the
+enclosed Python script `Tweak-F1.py`.
 
 This document records the resulting investigation and the modifications
 carried out during the summer of 2026. It is both a memory map of the finished
@@ -81,9 +82,8 @@ continue developing the game.
   - [7. Side-view car graphics](#7-side-view-car-graphics)
   - [8. Top-view car graphics](#8-top-view-car-graphics)
     - [Narrow car-number glyphs](#narrow-car-number-glyphs)
-    - [Final Brabham detail corrections](#final-brabham-detail-corrections)
-    - [Shared engine symmetry correction](#shared-engine-symmetry-correction)
-    - [Shared rear-suspension symmetry correction](#shared-rear-suspension-symmetry-correction)
+    - [Shared engine symmetry adjustment](#shared-engine-symmetry-adjustment)
+    - [Shared rear-suspension symmetry adjustment](#shared-rear-suspension-symmetry-adjustment)
   - [9. Starting-grid number boxes](#9-starting-grid-number-boxes)
   - [10. Championship points](#10-championship-points)
   - [11. Original 1985 race data](#11-original-1985-race-data)
@@ -853,9 +853,8 @@ views; the larger starting-grid number boxes in chapter 9 are separate
 artwork.
 
 The glyphs for all twelve cars were narrowed and redrawn as one consistent
-set. Their smaller proportions suit the overall car dimensions more naturally
-and allow the two-digit numbers to fit without looking compressed. Their final
-locations and bytes are:
+set. Their narrow forms fit the available car panels, including the two-digit
+numbers. Their final locations and bytes are:
 
 | Car | Address                     | Final bytes               |
 |----:|-----------------------------|---------------------------|
@@ -876,24 +875,10 @@ These bitmaps use inverse storage: a cleared bit forms a visible dark stroke,
 while a set bit leaves the surrounding number panel unchanged. The change is
 confined to the 96-byte glyph table; all unrelated data remain unchanged.
 
-#### Final Brabham detail corrections
+#### Shared engine symmetry adjustment
 
-Four bytes in Brabham's 55-byte top-view attribute map were deliberately changed:
-
-| Address         | Final byte | Effect                                         |
-|-----------------|-----------:|------------------------------------------------|
-| `$80A8` [32936] |      `$41` | rear-wing cell: bright blue ink on black paper |
-| `$80AD` [32941] |      `$01` | windshield cell: blue ink on black paper       |
-| `$80B3` [32947] |      `$41` | rear-wing cell: bright blue ink on black paper |
-| `$80BE` [32958] |      `$41` | rear-wing cell: bright blue ink on black paper |
-
-The three wing cells previously used `$71` (blue ink on yellow paper), while
-the windshield used `$11` (blue ink on red paper).
-
-#### Shared engine symmetry correction
-
-The engine character is part of the shared top-view bitmap, so one edit
-corrects all six team renderings.
+The engine character is part of the shared top-view bitmap, so one edit updates
+all six team renderings.
 
 - Character range: `$7FC4-$7FCB` [32708-32715]
 - Final bytes: `6D 6D FF 24 24 FF 6D 6D`
@@ -916,9 +901,10 @@ horizontally symmetric:
 #..#..#.
 ```
 
-#### Shared rear-suspension symmetry correction
+#### Shared rear-suspension symmetry adjustment
 
-The good upper suspension cell is `$801C-$8023` [32796-32803]:
+The upper suspension cell used as the reference is `$801C-$8023`
+[32796-32803]:
 
 ```text
 81 83 8C B0 E0 FF 92 24
@@ -932,7 +918,7 @@ centreline:
 24 92 FF E0 B0 8C 83 81
 ```
 
-The correction changes only three bytes:
+The adjustment changes only three bytes:
 
 | Address         | Previous | Final |
 |-----------------|---------:|------:|
@@ -940,7 +926,7 @@ The correction changes only three bytes:
 | `$7F71` [32625] |   `$83`  | `$8C` |
 | `$7F72` [32626] |   `$80`  | `$83` |
 
-Both symmetry corrections affect only the shared top-view bitmap. No colour
+Both symmetry adjustments affect only the shared top-view bitmap. No colour
 attributes, code, text or game-state bytes were changed.
 
 ### 9. Starting-grid number boxes
@@ -979,14 +965,13 @@ The attribute meanings are:
 |  9-10 |   `$58`   | BRIGHT black INK 0 on magenta PAPER 3 |
 | 11-12 |   `$70`   | BRIGHT black INK 0 on yellow PAPER 6  |
 
-Earlier work changed cars 11 and 12 from the incorrect cyan attribute `$68` to
-yellow `$70`. Their bitmap records nevertheless retained a different,
-two-pixel-thick frame. In the final snapshot, the 32 bitmap bytes at
-`$913B-$915A` and `$915F-$917E` are normalised to the same one-pixel frame
-geometry used by records 1-10. The two-digit numerals and all eight `$70`
-attribute bytes are retained.
+Earlier work changed cars 11 and 12 from the cyan attribute `$68` to yellow
+`$70`, matching their current team palette. Their bitmap records retained a
+different, two-pixel-thick frame. In the final snapshot, the 32 bitmap bytes at
+`$913B-$915A` and `$915F-$917E` use the same one-pixel frame geometry as records
+1-10. The two-digit numerals and all eight `$70` attribute bytes are retained.
 
-This refinement affected only the two 32-byte bitmap records. No code,
+This adjustment affected only the two 32-byte bitmap records. No code,
 attributes, other number boxes or unrelated artwork were changed.
 
 Relevant code:
@@ -1441,7 +1426,7 @@ cells remain untouched.
 
 The six attributes at `$F604-$F609` [62980-62985]; SNA file offsets
 [46623-46628] are all `$47`, meaning bright-white INK 7 on black PAPER 0.
-The `ELAPSED` refinement changes 38 bitmap-byte values and one attribute
+The `ELAPSED` adjustment changes 38 bitmap-byte values and one attribute
 value compared with the earlier `Time`/separator arrangement.
 
 ##### Race-scene country-name placeholder
@@ -1588,7 +1573,7 @@ In the final snapshot, the pixels spelling `pecial` are shifted one pixel left
 while `John Player S` remains fixed. The old final pixel column x=103 is
 cleared and the adjacent FIAT artwork still begins at x=104, providing a
 one-pixel separation between the two logos. Exactly thirty bitmap-byte values
-define this refinement; attributes, FIAT and all unrelated data remain
+define this adjustment; attributes, FIAT and all unrelated data remain
 untouched.
 
 Useful animation/drawing entry points include `$9FB3` [40883], `$A00F` [40975]
@@ -2092,10 +2077,9 @@ the retained changes are:
 - original 1985 lap counts, records, previous winners, lengths and year bases;
 - MOD2020 car and scene artwork;
 - classic team palette, including black Lotus and yellow Renault;
-- consistently narrow, better-proportioned car-number glyphs for cars 1-12;
+- consistently narrow car-number glyphs for cars 1-12;
 - yellow starting-grid boxes for cars 11 and 12;
 - correctly converted and labelled Celsius temperatures;
-- black Brabham rear wing and windshield details in the top view;
 - horizontally symmetric shared engine artwork;
 - mirrored upper/lower rear-suspension artwork;
 - original 1985 championship points: 9, 6, 4, 3, 2, 1;
@@ -2105,7 +2089,7 @@ the retained changes are:
 - car-management progress bars animated approximately four times faster;
 - the custom character set and selected pre-rendered text converted to the new font;
 - revised `GOODYEAR`, `Mobil`, `ELAPSED`, `GRAND PRIX`, Pirelli and John Player Special raster artwork;
-- cleaner mirrored direction arrows, with a bright red/yellow flashing pit arrow;
+- mirrored direction arrows, with a bright red/yellow flashing pit arrow;
 - uniform one-pixel starting-grid frames for cars 11 and 12;
 - fixed blue, black and yellow general-screen border colours, independent of the editable team palettes;
 - removal of two redundant small `FORMULA 1` captions from setup screens;

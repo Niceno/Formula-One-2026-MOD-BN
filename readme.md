@@ -3,9 +3,10 @@
 An unofficial, non-commercial modification of the 1985 ZX Spectrum game
 *Formula One* by G. B. Munday and B. P. Wheelhouse.
 
-This project builds upon MOD2020 by R. Martins and J. Pois. It includes
-additional graphical improvements, gameplay corrections, a custom font,
-a configurable season-tweaking script and detailed technical documentation.
+This project builds upon MOD2020 by R. Martins and J. Pois.  It includes a
+configurable season-tweaking script, detailed technical documentation, fixes
+for several bugs inherited from the original 1985 game, a custom font, and
+additional graphical adjustments.
 
 ## Main files
 
