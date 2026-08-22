@@ -8,6 +8,19 @@ configurable season-tweaking script, detailed technical documentation, fixes
 for several bugs inherited from the original 1985 game, a custom font, and
 additional graphical adjustments.
 
+## Main changes
+
+- configurable teams, drivers, sponsors, colours, year and race calendar;
+- fixes for several bugs inherited from the original 1985 game;
+- optional gameplay adjustments, including automatic pit stops and less
+  frequent random repair incidents;
+- a custom font and additional graphical adjustments;
+- Celsius temperatures and the original 1985 scoring system;
+- detailed technical documentation of the game’s memory and Z80 code.
+
+For complete technical details, see
+[F1-2026-Mod-Technical-Reference.md](F1-2026-Mod-Technical-Reference.md).
+
 ## Main files
 
 - `F1-2026-Mod.sna` — the modified game
