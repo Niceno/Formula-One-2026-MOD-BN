@@ -34,6 +34,27 @@ sponsors, colours and races. You can also select the championship year
 and enable optional gameplay adjustments. The script creates a new `.sna`
 file and leaves the base snapshot unchanged.
 
+### Basic example
+
+For example, the following command creates a 1991 season using the supplied
+input files:
+
+```powershell
+python .\Tweak-F1.py `
+  --game=F1-2026-Mod.sna `
+  --suffix=Season-1991 `
+  --year=1991 `
+  --teams=Inputs\teams_1991.txt `
+  --drivers=Inputs\drivers_1991.txt `
+  --sponsors=Inputs\sponsors_1991.txt `
+  --races=Inputs\races_1991.txt `
+  --colours=Inputs\colors_1991.txt
+```
+
+This creates `F1-2026-Mod-Season-1991.sna` in the current directory and
+leaves the original snapshot unchanged. Options may be omitted or combined
+as required.
+
 Sample input files for several seasons are available in the `Inputs/`
 directory.  Complete instructions and command-line options are documented
 in [F1-2026-Mod-Technical-Reference.md](F1-2026-Mod-Technical-Reference.md#part-iv-tweak-f1py).
