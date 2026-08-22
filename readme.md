@@ -1,4 +1,4 @@
-# Formula One 2026 Mod for the ZX Spectrum
+# Formula One 2026 MOD-BN for the ZX Spectrum
 
 An unofficial, non-commercial modification of the 1985 ZX Spectrum game
 *Formula One* by G. B. Munday and B. P. Wheelhouse.
@@ -19,20 +19,21 @@ from the original 1985 game, a custom font, and small graphical adjustments.
 - Detailed technical documentation of the game’s memory and Z80 code.
 
 For complete technical details, see
-[F1-2026-Mod-Technical-Reference.md](F1-2026-Mod-Technical-Reference.md).
+[Technical-Reference.md](Technical-Reference.md).
 
 ## Usage
 
-Load `F1-2026-Mod.sna` in your favourite ZX Spectrum 48K emulator. The
-base snapshot contains the original 1985 season, artwork inherited from
-MOD2020, a custom font, several graphical adjustments and fixes for bugs
-inherited from the original game.
+One possibility is to load `F1-2026-MOD-BN.sna` in your favourite ZX Spectrum
+48K emulator. This base snapshot contains the original 1985 season, artwork
+inherited from 2020 MOD, a custom font, several graphical adjustments and fixes
+for bugs inherited from the original game.  However, doing only that misses the
+most interesting part of the 2026 MOD-BN.
 
-The principal feature of the 2026 Mod is season customisation. Use the
-provided `Tweak-F1.py` script with input files defining teams, drivers,
+The principal feature of the 2026 MOD-BN is season customisation. You can use
+the provided `Tweak-F1.py` script with input files defining teams, drivers,
 sponsors, colours and races. You can also select the championship year
 and enable optional gameplay adjustments. The script creates a new `.sna`
-file and leaves the base snapshot unchanged.
+file and leaves the base snapshot `F1-2026-MOD-BN.sna` unchanged.
 
 ### Basic example
 
@@ -41,7 +42,7 @@ input files:
 
 ```powershell
 python .\Tweak-F1.py `
-  --game=F1-2026-Mod.sna `
+  --game=F1-2026-MOD-BN.sna `
   --suffix=Season-1991 `
   --year=1991 `
   --teams=Inputs\teams_1991.txt `
@@ -51,32 +52,32 @@ python .\Tweak-F1.py `
   --colours=Inputs\colors_1991.txt
 ```
 
-This creates `F1-2026-Mod-Season-1991.sna` in the current directory and
-leaves the original snapshot unchanged. Options may be omitted or combined
-as required.
+This creates `F1-2026-MOD-BN-Season-1991.sna` in the current directory and
+leaves the original snapshot unchanged. All options except `--game` and
+`--suffix` may be omitted or combined as required.
 
 Sample input files for several seasons are available in the `Inputs/`
 directory.  Complete instructions and command-line options are documented
-in [F1-2026-Mod-Technical-Reference.md](F1-2026-Mod-Technical-Reference.md#part-iv-using-tweak-f1py).
+in [Technical-Reference.md](Technical-Reference.md#part-iv-using-tweak-f1py).
 
 ## Main files
 
-- `F1-2026-Mod.sna` — the modified game
+- `F1-2026-MOD-BN.sna` — the modified game
 - `Tweak-F1.py` — season-customisation program
-- `F1-2026-Mod-Technical-Reference.md` — technical documentation
+- `Technical-Reference.md` — technical documentation
 - `Inputs/` — sample season definitions
 - `Images/` — screenshots and supporting images
 
 ## Status
 
 The repository is currently private while permission to publish the
-MOD2020-derived artwork and snapshot is being requested.
+2020 MOD-derived artwork and snapshot is being requested.
 
 ## Credits
 
 - Original game: G. B. Munday and B. P. Wheelhouse
-- MOD2020: Rui Martins and Jorge Pois
-- 2026 modification, documentation and tools: Bojan Niceno
+- 2020 MOD: Rui Martins and Jorge Pois
+- 2026 MOD-BN modifications, documentation and tools: Bojan Niceno
 
 ## Acknowledgements
 

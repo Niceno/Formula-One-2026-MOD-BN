@@ -9,29 +9,39 @@
 [//]: # (    ##### — only if a further level is genuinely necessary.           )
 [//]: # (----------------------------------------------------------------------)
 
-# Formula One (ZX Spectrum 48K) Memory Map
+# Formula One (ZX Spectrum 48K) Technical Reference
 
-This document describes the current snapshot:
+This document describes the current snapshot, `F1-2026-MOD-BN.sna`, and its
+companion season-customisation script, `Tweak-F1.py`.
 
-`F1-2026-Mod.sna`
+The snapshot combines the original 1985 teams, drivers, sponsors, race data and
+championship scoring with the car and scene artwork from
+[*Formula One (2020 MOD), update 1.25*](https://planetasinclair.blogspot.com/2021/01/formula-one-2020-mod-update-125.html)
+by Rui Martins and Jorge Pois. Their work provides the graphical foundation for
+this project.
 
-It combines the original 1985 teams, drivers and race data with the improved
-MOD2020 artwork, plus the colour, temperature in Celsius, scoring, top-view
-symmetry and faster progress-bar adjustments made during this project, together
-with suppression of the transient chequerboard behind the race-scene country
-name, safe handling of sponsor ID zero and corrections that limit both component
-purchases and improvements before money is deducted. An optional gameplay
-adjustment can double each season's starting money through `Tweak-F1.py`.
+The permanent changes in the `F1-2026-MOD-BN.sna` include Celsius temperatures,
+a custom font, slightly revised raster signs and banners, narrower car-number
+glyphs, several graphical alignment adjustments, faster car-management progress
+bars and removal of the transient chequerboard behind the race-scene country
+name.
 
-The memory map describes the final file and the technical changes it contains.
-Temporary development snapshots are deliberately not named: their filenames and
-individual hashes were useful during construction, but are not required to
-understand or reproduce the final memory layout. The original 1985 snapshot is
-retained as the named comparison baseline.
+The snapshot also contains corrections for several issues inherited from the
+original 1985 game, including component-purchase and improvement entries,
+general-screen border colours and the scheduling of pit stops for the second
+car in each team. A detailed list of changes is outlined in chapter 20.
 
-Verified SHA-256:
+This technical reference describes the final file and the changes it contains.
+The original 1985 snapshot is retained as the named comparison baseline.
 
-`4833e1c99ac8ca9fae6ba6c2255a53859470f98544475d363c03edebcda1b481`
+Verified SHA-256 for `F1-2026-MOD-BN.sna`:
+
+`c7013c46a3a228f4d68b79782ea3b3fdeebbc8f3db4808b23bc2a1355f8d6234`
+
+`Tweak-F1.py` can change the championship year, team, driver and sponsor names,
+team colours and the sixteen-race calendar. Optional settings can enable
+automatic pit stops for human-controlled cars, reduce the frequency of random
+racing incidents and double the starting money for human-controlled teams.
 
 ## Motivation and history
 
@@ -46,13 +56,13 @@ those versions were stored only on cassette tapes that have long since
 disappeared.
 
 A few weeks before this project began, I came across the 2020 modification by
-R. Martins and J. Pois. Their improved artwork, considerably better than
-anything I had achieved as a youngster, inspired me to revisit the game.
-I used their exceptional graphical work as the foundation for this project,
-while making the game easier to adapt to different _Formula One_ seasons.
-Teams, drivers, sponsors, colour schemes, championship points, race calendars
-and other details can now be adjusted much more systematically with the
-enclosed Python script `Tweak-F1.py`.
+Rui Martins and Jorge Pois [*Formula One (2020 MOD), update 1.25*](https://planetasinclair.blogspot.com/2021/01/formula-one-2020-mod-update-125.html).
+Their improved artwork, considerably better than anything I had achieved as a
+youngster, inspired me to revisit the game.  I used their exceptional graphical
+work as the foundation for this project, while making the game easier to adapt
+to different _Formula One_ seasons.  Teams, drivers, sponsors, colour schemes,
+championship points, race calendars and other details can now be adjusted much
+more systematically with the enclosed Python script `Tweak-F1.py`.
 
 This document records the resulting investigation and the modifications
 carried out during the summer of 2026. It is both a memory map of the finished
@@ -393,7 +403,7 @@ first byte will sometimes display local data as nonsensical instructions.
 | Fixed-black/fixed-yellow border/PAPER routine and constants | `$EAC5-$EAE1` [60101-60129] | `$AAE0-$AAFC` [43744-43772] | 29 bytes |
 | Context-aware pre-payment clamp wrapper                     | `$EAE2-$EAFB` [60130-60155] | `$AAFD-$AB16` [43773-43798] | 26 bytes |
 
-In the MOD2020-derived code layout used by the final snapshot, the pre-existing
+In the 2020 MOD-derived code layout used by the final snapshot, the pre-existing
 occupied code ends at `$EA6F` [60015]. The original 1985 reference has
 an equivalent six-byte tail at `$EA70-$EA75` because its surrounding code is
 six bytes longer; it is therefore incorrect to describe the whole area as
@@ -1103,7 +1113,7 @@ The final snapshot restores these immediate year constants:
 |   `$E8D7` [59607]   | `21 C0 07` | `LD HL,1984`                       |
 
 With the game's season offset applied, these produce the intended 1985 season
-and 1984 previous-winner year rather than the MOD2020-era dates.
+and 1984 previous-winner year rather than the 2020 MOD-era dates.
 
 ### 13. Other graphics and display memory
 
@@ -1162,7 +1172,7 @@ routines and constants at `$EA70-$EAFB` [60016-60155] occupy control-code
 storage below that point; they do not overwrite any printable letter, number or
 punctuation glyph. In the final snapshot only `$EAFC-$EAFD` [60156-60157]
 remains zero-filled. As noted in §4, the exact pre-patch contents differ
-between the original 1985 and MOD2020-derived code layouts, so only the
+between the original 1985 and 2020 MOD-derived code layouts, so only the
 specifically documented ranges should be treated as available.
 
 Main text-printing routine: `$9728` [38696]. Other useful formatters include
@@ -2070,33 +2080,34 @@ implemented in the final snapshot.
 
 ### 20. Modification history represented by the final snapshot
 
-The final snapshot grew from a MOD2020-derived starting point. In logical order,
-the retained changes are:
+The final snapshot grew from 2020 MOD-derived starting point.
+In logical order, the changes done to obtain 2026 MOD-BN are:
 
-- original 1985 driver, team, manager, sponsor, race and circuit text;
-- original 1985 lap counts, records, previous winners, lengths and year bases;
-- MOD2020 car and scene artwork;
-- classic team palette, including black Lotus and yellow Renault;
-- consistently narrow car-number glyphs for cars 1-12;
-- yellow starting-grid boxes for cars 11 and 12;
-- correctly converted and labelled Celsius temperatures;
-- horizontally symmetric shared engine artwork;
-- mirrored upper/lower rear-suspension artwork;
-- original 1985 championship points: 9, 6, 4, 3, 2, 1;
-- a dormant wrapper supporting optional doubled starting money for
-  human-controlled teams at the beginning of every season;
-- sponsor ID zero handled without corrupting the sponsor-selection prompt;
-- car-management progress bars animated approximately four times faster;
-- the custom character set and selected pre-rendered text converted to the new font;
-- revised `GOODYEAR`, `Mobil`, `ELAPSED`, `GRAND PRIX`, Pirelli and John Player Special raster artwork;
-- mirrored direction arrows, with a bright red/yellow flashing pit arrow;
-- uniform one-pixel starting-grid frames for cars 11 and 12;
-- fixed blue, black and yellow general-screen border colours, independent of the editable team palettes;
-- removal of two redundant small `FORMULA 1` captions from setup screens;
-- replacement of the transient blue/yellow race-country chequerboard with a
-  plain blue bitmap field;
-- component-purchase entries limited to 255 before money is deducted;
-- component-improvement entries limited to their remaining useful cost, with
+- Original 1985 driver, team, manager, sponsor, race and circuit text.
+- Original 1985 lap counts, records, previous winners, lengths and year bases.
+- 2020 MOD car and scene artwork.
+- Classic team palette, including black Lotus and yellow Renault.
+- Consistently narrow car-number glyphs for cars 1-12.
+- Correctly converted and labelled Celsius temperatures.
+- Horizontally symmetric shared engine artwork.
+- Mirrored upper/lower rear-suspension artwork.
+- Original 1985 championship points: 9, 6, 4, 3, 2, 1.
+- A dormant wrapper supporting optional doubled starting money for
+  human-controlled teams at the beginning of every season.
+- Sponsor ID zero handled without corrupting the sponsor-selection prompt.
+- Corrected second-car pit scheduling, preventing automatic and manually
+  requested pit stops from being repeatedly postponed.
+- Car-management progress bars animated approximately four times faster.
+- The custom character set and selected pre-rendered text converted to the new font.
+- Revised `GOODYEAR`, `Mobil`, `ELAPSED`, `GRAND PRIX`, Pirelli and John Player Special raster artwork.
+- Mirrored direction arrows, with a bright red/yellow flashing pit arrow.
+- Uniform one-pixel starting-grid frames for cars 11 and 12.
+- Fixed blue, black and yellow general-screen border colours, independent of the editable team palettes.
+- Removal of two redundant small `FORMULA 1` captions from setup screens.
+- Replacement of the transient blue/yellow race-country chequerboard with a
+  plain blue bitmap field.
+- Component-purchase entries limited to 255 before money is deducted.
+- Component-improvement entries limited to their remaining useful cost, with
   255 retained as the overall ceiling.
 
 This is a history of changes, not a chain of build files. The obsolete
@@ -2114,7 +2125,7 @@ without a byte comparison.
 
 This section records findings from directly inspecting the unmodified original
 snapshot, `F1-1985-Original.sna` (SHA-256
-`34E5A9FD62C6355C43630255CBCE047940EF59480BEF8547D6842718333F5325`,
+`34e5a9fd62c6355c43630255cbce047940ef59480bef8547d6842718333f5325`,
 49,179 bytes), alongside a set of gameplay screenshots taken from an actual
 play session. The two do not necessarily reflect the same moment of program
 state — the snapshot may be a fresh/reset capture, while the screenshots come
@@ -2811,7 +2822,7 @@ input:
 
 ```powershell
 python .\Tweak-F1.py `
-    --game=F1-2026-Mod.sna `
+    --game=F1-2026-MOD-BN.sna `
     --suffix=Season-1991 `
     --year=1991 `
     --teams=teams_1991.txt `
@@ -2825,7 +2836,7 @@ The automatic-pit-stop change can be applied on its own:
 
 ```powershell
 python .\Tweak-F1.py `
-    --game=F1-2026-Mod.sna `
+    --game=F1-2026-MOD-BN.sna `
     --suffix=Automatic-Pit-Stops `
     --automatic-human-pit-stops
 ```
@@ -2838,7 +2849,7 @@ Starting money can be doubled independently for every season:
 
 ```powershell
 python .\Tweak-F1.py `
-    --game=F1-2026-Mod.sna `
+    --game=F1-2026-MOD-BN.sna `
     --suffix=Double-Starting-Money `
     --double-starting-money
 ```
@@ -2850,7 +2861,7 @@ The random-incident frequency can be reduced independently:
 
 ```powershell
 python .\Tweak-F1.py `
-    --game=F1-2026-Mod.sna `
+    --game=F1-2026-MOD-BN.sna `
     --suffix=Rare-Incidents `
     --random-incidents=rare
 ```
@@ -2865,8 +2876,8 @@ The output is written directly to the current working directory. Its name is
 formed from the source filename stem and the mandatory suffix:
 
 ```text
-F1-2026-Mod.sna + --suffix=Season-1991
-    -> F1-2026-Mod-Season-1991.sna
+F1-2026-MOD-BN.sna + --suffix=Season-1991
+    -> F1-2026-MOD-BN-Season-1991.sna
 ```
 
 The suffix cannot be empty, `.` or `..`, and cannot contain `/` or `\`.

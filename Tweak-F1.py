@@ -19,8 +19,8 @@ Example:
 Each names file contains one name per line. Empty lines and lines beginning
 with # are ignored. A races file contains exactly sixteen pipe-separated lines
 in the form RACE | CIRCUIT | LAPS. The source snapshot is never overwritten.
-The mandatory --suffix option names the result: --game=F1-2026-Mod.sna
---suffix=Season-1991 writes F1-2026-Mod-Season-1991.sna. Generated SNA files
+The mandatory --suffix option names the result: --game=F1-2026-MOD-BN.sna
+--suffix=Season-1991 writes F1-2026-MOD-BN-Season-1991.sna. Generated SNA files
 are written directly to the current working directory, overwriting any
 existing file of that name without prompting; no previews, manifests, JSON
 files or output directories are created.
@@ -987,7 +987,7 @@ def parse_args() -> argparse.Namespace:
     help=(
       "mandatory output-name suffix; the result is written as "
       "<game>-<suffix>.sna, for example --suffix=Season-1991 with "
-      "--game=F1-2026-Mod.sna produces F1-2026-Mod-Season-1991.sna, "
+      "--game=F1-2026-MOD-BN.sna produces F1-2026-MOD-BN-Season-1991.sna, "
       "overwriting any existing file of that name without prompting"
     ),
   )

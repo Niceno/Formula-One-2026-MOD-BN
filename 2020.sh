@@ -6,7 +6,7 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$script_dir"
 
 python ./Tweak-F1.py \
-  --game ./F1-2026-Mod.sna \
+  --game ./F1-2026-MOD-BN.sna \
   --year 2020 \
   --suffix Season-2020 \
   --races ./Inputs/races_2020.txt \

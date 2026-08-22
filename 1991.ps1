@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 Push-Location $PSScriptRoot
 try {
   python .\Tweak-F1.py `
-    --game .\F1-2026-Mod.sna `
+    --game .\F1-2026-MOD-BN.sna `
     --year 1991 `
     --suffix Season-1991 `
     --races .\Inputs\races_1991.txt `
