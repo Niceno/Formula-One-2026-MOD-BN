@@ -36,7 +36,7 @@ file and leaves the base snapshot unchanged.
 
 Sample input files for several seasons are available in the `Inputs/`
 directory.  Complete instructions and command-line options are documented
-in [F1-2026-Mod-Technical-Reference.md](F1-2026-Mod-Technical-Reference.md#part-iv-tweak-f1py).
+in [F1-2026-Mod-Technical-Reference.md](F1-2026-Mod-Technical-Reference.md#part-iv-using-tweak-f1py).
 
 ## Main files
 
