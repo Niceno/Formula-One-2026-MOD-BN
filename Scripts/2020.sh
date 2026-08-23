@@ -3,7 +3,7 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-cd "$script_dir"
+cd "$script_dir/.."
 
 python ./Tweak-F1.py \
   --game ./F1-2026-MOD-BN.sna \

@@ -1,17 +1,17 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-Push-Location $PSScriptRoot
+Push-Location (Split-Path $PSScriptRoot -Parent)
 try {
   python .\Tweak-F1.py `
     --game .\F1-2026-MOD-BN.sna `
-    --year 1989 `
-    --suffix Season-1989 `
-    --races .\Inputs\races_1989.txt `
-    --teams .\Inputs\teams_1989.txt `
-    --colors .\Inputs\colors_1989.txt `
-    --sponsors .\Inputs\sponsors_1989.txt `
-    --drivers .\Inputs\drivers_1989.txt `
+    --year 1993 `
+    --suffix Season-1993 `
+    --races .\Inputs\races_1993.txt `
+    --teams .\Inputs\teams_1993.txt `
+    --colors .\Inputs\colors_1993.txt `
+    --sponsors .\Inputs\sponsors_1993.txt `
+    --drivers .\Inputs\drivers_1993.txt `
     --automatic-human-pit-stops `
     --double-starting-money `
     --random-incidents rare

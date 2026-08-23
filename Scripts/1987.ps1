@@ -1,7 +1,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-Push-Location $PSScriptRoot
+Push-Location (Split-Path $PSScriptRoot -Parent)
 try {
   python .\Tweak-F1.py `
     --game .\F1-2026-MOD-BN.sna `
