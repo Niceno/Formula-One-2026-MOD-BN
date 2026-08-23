@@ -116,7 +116,7 @@ h1 {
 }
 
 h1 span {
-  color: var(--yellow);
+  color: var(--green);
 }
 
 .hero__intro {
@@ -335,7 +335,7 @@ input[type="file"]::file-selector-button {
   align-self: stretch;
   border: 0;
   outline: 0;
-  color: var(--yellow);
+  color: var(--green);
   background: transparent;
   font-family: inherit;
   font-weight: 700;
@@ -439,7 +439,7 @@ input[type="file"]::file-selector-button {
 }
 
 code {
-  color: var(--yellow);
+  color: var(--green);
   font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
   font-size: 0.9em;
 }
