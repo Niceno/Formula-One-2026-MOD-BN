@@ -35,6 +35,11 @@ sponsors, colours and races. You can also select the championship year
 and enable optional gameplay adjustments. The script creates a new `.sna`
 file and leaves the base snapshot `F1-2026-MOD-BN.sna` unchanged.
 
+For a simpler, installation-free alternative, use the
+[online Season Builder](https://niceno.github.io/Formula-One-2026-MOD-BN/Index.html).
+It runs `Tweak-F1.py` inside the browser and does not upload the selected files
+or the generated snapshot to a server.
+
 ### Basic example
 
 For example, the following command creates a 1991 season using the supplied
@@ -67,11 +72,8 @@ in [Technical-Reference.md](Technical-Reference.md#part-iv-using-tweak-f1py).
 - `Technical-Reference.md` — technical documentation
 - `Inputs/` — sample season definitions
 - `Images/` — screenshots and supporting images
-
-## Status
-
-The repository is currently private while permission to publish the
-2020 MOD-derived artwork and snapshot is being requested.
+- `Index.html`, `Season-Builder.js` and `Season-Builder.css` — online Season
+  Builder
 
 ## Credits
 
@@ -90,4 +92,3 @@ The repository is currently private while permission to publish the
   snapshots, development of `Tweak-F1.py`, and preparation of the technical
   documentation. All design decisions, testing and final responsibility remain
   with Bojan Niceno.
-

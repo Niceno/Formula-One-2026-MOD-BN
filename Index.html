@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Build a customised Formula One 2026 MOD-BN ZX Spectrum snapshot in your browser."
+    >
+    <title>Formula One 2026 MOD-BN — Season Builder</title>
+    <link rel="stylesheet" href="Season-Builder.css">
+    <script type="module" src="Season-Builder.js"></script>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__stripe" aria-hidden="true"></div>
+      <div class="hero__content">
+        <a class="eyebrow" href="https://github.com/Niceno/Formula-One-2026-MOD-BN">
+          Formula One 2026 MOD-BN
+        </a>
+        <h1>Build your own<br><span>Formula One season</span></h1>
+        <p class="hero__intro">
+          Choose a supplied season or provide your own data. The builder creates
+          a ready-to-play ZX Spectrum snapshot directly in your browser.
+        </p>
+        <div class="privacy-note">
+          <span class="privacy-note__light" aria-hidden="true"></span>
+          Your files never leave this device
+        </div>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <form id="builder-form" class="builder" novalidate>
+        <section class="panel" aria-labelledby="season-heading">
+          <div class="panel__number" aria-hidden="true">01</div>
+          <div class="panel__content">
+            <h2 id="season-heading">Choose the season data</h2>
+            <p class="section-copy">
+              Ready-made seasons use the input files already included in the
+              project. Choose <strong>Custom files</strong> to supply your own.
+            </p>
+
+            <label class="field" for="season-preset">
+              <span>Season source</span>
+              <select id="season-preset" name="season-preset">
+                <option value="1985">1985 — original season</option>
+                <option value="1987">1987</option>
+                <option value="1989">1989</option>
+                <option value="1991" selected>1991</option>
+                <option value="1993">1993</option>
+                <option value="2020">2020 MOD season</option>
+                <option value="custom">Custom files</option>
+                <option value="base">Keep the base season data</option>
+              </select>
+            </label>
+
+            <div id="custom-inputs" class="custom-inputs" hidden>
+              <label class="field field--year" for="year">
+                <span>Starting year <small>(optional)</small></span>
+                <input id="year" name="year" type="number" min="1000" max="9999" placeholder="1991">
+              </label>
+
+              <div class="file-grid">
+                <label class="file-field" for="teams-file">
+                  <span>Teams</span>
+                  <input id="teams-file" type="file" accept=".txt,text/plain">
+                  <small>Up to 6 names</small>
+                </label>
+                <label class="file-field" for="drivers-file">
+                  <span>Drivers</span>
+                  <input id="drivers-file" type="file" accept=".txt,text/plain">
+                  <small>Up to 24 names</small>
+                </label>
+                <label class="file-field" for="sponsors-file">
+                  <span>Sponsors</span>
+                  <input id="sponsors-file" type="file" accept=".txt,text/plain">
+                  <small>Up to 13 names</small>
+                </label>
+                <label class="file-field" for="races-file">
+                  <span>Races</span>
+                  <input id="races-file" type="file" accept=".txt,text/plain">
+                  <small>Exactly 16 entries</small>
+                </label>
+                <label class="file-field" for="colours-file">
+                  <span>Team colours</span>
+                  <input id="colours-file" type="file" accept=".txt,text/plain">
+                  <small>Up to 6 entries</small>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="gameplay-heading">
+          <div class="panel__number" aria-hidden="true">02</div>
+          <div class="panel__content">
+            <h2 id="gameplay-heading">Optional gameplay adjustments</h2>
+            <div class="choice-list">
+              <label class="choice" for="double-money">
+                <input id="double-money" type="checkbox">
+                <span>
+                  <strong>Double starting money</strong>
+                  <small>Applies to each human team at every season start.</small>
+                </span>
+              </label>
+              <label class="choice" for="automatic-pits">
+                <input id="automatic-pits" type="checkbox">
+                <span>
+                  <strong>Automatic pit stops for human cars</strong>
+                  <small>Uses the same scheduler as computer-controlled cars.</small>
+                </span>
+              </label>
+              <label class="field" for="incident-rate">
+                <span>Random repair incidents</span>
+                <select id="incident-rate">
+                  <option value="">Leave the snapshot unchanged</option>
+                  <option value="original">Original — 1 in 32 per car per lap</option>
+                  <option value="reduced">Reduced — 1 in 64 per car per lap</option>
+                  <option value="rare">Rare — 1 in 128 per car per lap</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="output-heading">
+          <div class="panel__number" aria-hidden="true">03</div>
+          <div class="panel__content">
+            <h2 id="output-heading">Create the snapshot</h2>
+            <label class="field" for="suffix">
+              <span>Output-name suffix</span>
+              <div class="filename-field">
+                <span>F1-2026-MOD-BN-</span>
+                <input id="suffix" name="suffix" value="Season-1991" required>
+                <span>.sna</span>
+              </div>
+            </label>
+
+            <button id="build-button" class="build-button" type="submit" disabled>
+              <span>Create and download snapshot</span>
+              <span class="build-button__arrow" aria-hidden="true">→</span>
+            </button>
+
+            <div id="status" class="status" role="status" aria-live="polite">
+              <span class="status__dot" aria-hidden="true"></span>
+              <span id="status-text">Loading the Python engine…</span>
+            </div>
+          </div>
+        </section>
+      </form>
+
+      <aside class="help-card">
+        <div>
+          <p class="help-card__label">Need more control?</p>
+          <h2>Every browser option follows <code>Tweak-F1.py</code>.</h2>
+          <p>
+            The same validation rules apply here as on the command line. The
+            original base snapshot remains unchanged.
+          </p>
+        </div>
+        <div class="help-card__links">
+          <a
+            href="https://github.com/Niceno/Formula-One-2026-MOD-BN/blob/main/Technical-Reference.md#part-iv-using-tweak-f1py"
+          >Read the usage guide</a>
+          <a
+            href="https://github.com/Niceno/Formula-One-2026-MOD-BN/blob/main/Controls.md"
+          >View the game controls</a>
+          <a href="https://github.com/Niceno/Formula-One-2026-MOD-BN">Browse the source</a>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <p>An unofficial, non-commercial modification of the 1985 ZX Spectrum game <em>Formula One</em>.</p>
+    </footer>
+  </body>
+</html>
