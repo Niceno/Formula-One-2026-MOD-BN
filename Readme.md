@@ -23,24 +23,30 @@ For complete technical details, see
 
 ## Usage
 
-One possibility is to load `F1-2026-MOD-BN.sna` in your favourite ZX Spectrum
-48K emulator. This base snapshot contains the original 1985 season, artwork
-inherited from 2020 MOD, a custom font, several graphical adjustments and fixes
-for bugs inherited from the original game.  However, doing only that misses the
-most interesting part of the 2026 MOD-BN.
+The 2026 MOD-BN can be used in three ways.
 
-The principal feature of the 2026 MOD-BN is season customisation. You can use
-the provided `Tweak-F1.py` script with input files defining teams, drivers,
-sponsors, colours and races. You can also select the championship year
-and enable optional gameplay adjustments. The script creates a new `.sna`
-file and leaves the base snapshot `F1-2026-MOD-BN.sna` unchanged.
+### 1. Use the base snapshot
 
-For a simpler, installation-free alternative, use the
-[online Season Builder](https://niceno.github.io/Formula-One-2026-MOD-BN/Index.html).
-It runs `Tweak-F1.py` inside the browser and does not upload the selected files
-or the generated snapshot to a server.
+Load `F1-2026-MOD-BN.sna` in your favourite ZX Spectrum 48K emulator. This
+base snapshot contains the original 1985 season, artwork inherited from 2020
+MOD, a custom font, several graphical adjustments and fixes for bugs inherited
+from the original game.
 
-### Basic example
+This is the simplest way to play, but it does not use the principal feature of
+the 2026 MOD-BN: season customisation.
+
+### 2. Run Tweak-F1.py from the command line
+
+`Tweak-F1.py` is the main customisation tool supplied with the 2026 MOD-BN. It
+can be run from PowerShell on Windows or from a Bash-compatible command prompt
+on Linux or WSL.
+
+The script accepts input files defining teams, drivers, sponsors, colours and
+races. You can also select the championship year and enable optional gameplay
+adjustments. It creates a new `.sna` file and leaves the verified base snapshot
+`F1-2026-MOD-BN.sna` unchanged.
+
+#### Basic PowerShell example
 
 For example, the following command creates a 1991 season using the supplied
 input files:
@@ -61,9 +67,26 @@ This creates `F1-2026-MOD-BN-Season-1991.sna` in the current directory and
 leaves the original snapshot unchanged. All options except `--game` and
 `--suffix` may be omitted or combined as required.
 
+On Linux or WSL, use `python3 ./Tweak-F1.py` and replace the PowerShell
+backticks used for line continuation with backslashes (`\`). Ready-made
+PowerShell and Bash scripts are also available in the `Scripts/` directory.
+
 Sample input files for several seasons are available in the `Inputs/`
-directory.  Complete instructions and command-line options are documented
-in [Technical-Reference.md](Technical-Reference.md#part-iv-using-tweak-f1py).
+directory.
+
+Complete instructions and command-line options are documented in
+[Technical-Reference.md](Technical-Reference.md#part-iv-using-tweak-f1py).
+
+### 3. Use the online Season Builder
+
+Users who prefer _not_ to work with a command prompt can use the
+[online Season Builder](https://niceno.github.io/Formula-One-2026-MOD-BN/Index.html).
+It provides a graphical interface for the same `Tweak-F1.py` program. You can
+choose one of the supplied seasons or provide your own input files.
+
+The builder runs entirely inside the browser. It does not upload the selected
+files or the generated snapshot to a server, and it always uses the verified
+`F1-2026-MOD-BN.sna` as its base.
 
 ## Main files
 
