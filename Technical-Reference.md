@@ -47,8 +47,9 @@ racing incidents and double the starting money for human-controlled teams.
 
 I first encountered _Formula One_ as a teenager in 1986 and spent countless
 hours playing it. Before long, however, I also became aware of some of its
-limitations. The team and driver names remained tied to the original season,
-even as the game advanced through later years, and I felt that parts of its
+limitations.
+The team and driver names remained tied to the original season, even as the
+game advanced through later years, and I felt that parts of the original game's
 graphical presentation could benefit from some polishing.
 
 Back in the 1980s, I modified the game to suit my own tastes. Unfortunately,
@@ -2088,7 +2089,7 @@ In logical order, the changes done to obtain 2026 MOD-BN are:
 - 2020 MOD car and scene artwork.
 - Classic team palette, including black Lotus and yellow Renault.
 - Consistently narrow car-number glyphs for cars 1-12.
-- Correctly converted and labelled Celsius temperatures.
+- Fahrenheit temperatures converted to Celsius.
 - Horizontally symmetric shared engine artwork.
 - Mirrored upper/lower rear-suspension artwork.
 - Original 1985 championship points: 9, 6, 4, 3, 2, 1.

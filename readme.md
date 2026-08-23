@@ -81,8 +81,13 @@ The repository is currently private while permission to publish the
 
 ## Acknowledgements
 
-Development of this modification was assisted by OpenAI Codex, particularly
-in the reverse engineering of the Z80 program, analysis and patching of SNA
-snapshots, development of `Tweak-F1.py`, and preparation of the technical
-documentation. All design decisions, testing and final responsibility remain
-with Bojan Niceno.
+- I would like to thank Rui Martins and Jorge Pois for their work on the
+  2020 MOD and for taking the time to review this modification and share their
+  feedback before making it public.
+
+- Development of this modification was assisted by OpenAI Codex, particularly
+  in the reverse engineering of the Z80 program, analysis and patching of SNA
+  snapshots, development of `Tweak-F1.py`, and preparation of the technical
+  documentation. All design decisions, testing and final responsibility remain
+  with Bojan Niceno.
+
