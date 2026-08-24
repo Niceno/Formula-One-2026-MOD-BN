@@ -11,23 +11,23 @@
 
 # Formula One (ZX Spectrum 48K) Technical Reference
 
-This document describes the current snapshot, `F1-2026-MOD-BN.sna`, and its
+This document describes the _base snapshot_ (`F1-2026-MOD-BN.sna`) and its
 companion season-customisation script, `Tweak-F1.py`.
 
-The snapshot combines the original 1985 teams, drivers, sponsors, race data and
-championship scoring with the car and scene artwork from
+The base snapshot combines the original 1985 teams, drivers, sponsors, race
+data and championship scoring with the car and scene artwork from
 [*Formula One (2020 MOD), update 1.25*](https://planetasinclair.blogspot.com/2021/01/formula-one-2020-mod-update-125.html)
 by Rui Martins and Jorge Pois. Their work provides the graphical foundation for
 this project.
 
-The permanent changes in the `F1-2026-MOD-BN.sna` include Celsius temperatures,
+The built-in changes in the base snapshot include Celsius temperatures,
 a custom font, slightly revised raster signs and banners, narrower car-number
 glyphs, several graphical alignment adjustments, faster car-management progress
 bars and removal of the transient chequerboard behind the race-scene country
 name.
 
-The snapshot also contains corrections for several issues inherited from the
-original 1985 game, including component-purchase and improvement entries,
+The base snapshot also contains corrections for several issues inherited from
+the original 1985 game, including component-purchase and improvement entries,
 general-screen border colours and the scheduling of pit stops for the second
 car in each team. A detailed list of changes is outlined in chapter 20.
 
@@ -63,7 +63,7 @@ championship points, race calendars and other details can now be adjusted much
 more systematically with the enclosed Python script `Tweak-F1.py`.
 
 This document records the resulting investigation and the modifications
-carried out during the summer of 2026. It is both a memory map of the finished
+carried out during the summer of 2026. It is both a memory map of the base
 snapshot and a record of how this remarkably compact 1985 game works
 internally. I hope it will also provide a useful starting point for other
 _Formula One_ game enthusiasts who may wish to modify, expand or otherwise
@@ -76,7 +76,7 @@ continue developing the game.
   - [2. Standard ZX Spectrum 48K memory layout](#2-standard-zx-spectrum-48k-memory-layout)
   - [3. Quick reference](#3-quick-reference)
   - [4. Program layout: where the Z80 instructions reside](#4-program-layout-where-the-z80-instructions-reside)
-    - [Added routines in the final snapshot](#added-routines-in-the-final-snapshot)
+    - [Added routines in the base snapshot](#added-routines-in-the-base-snapshot)
     - [Snapshot resume point versus original program entry](#snapshot-resume-point-versus-original-program-entry)
 - [Part II: Graphics, text and presentation](#part-ii-graphics-text-and-presentation)
   - [5. Text tables](#5-text-tables)
@@ -118,7 +118,7 @@ continue developing the game.
     - [Progressive wear](#progressive-wear)
     - [Pit behaviour](#pit-behaviour)
   - [19. Fixed car numbers and the defending champion](#19-fixed-car-numbers-and-the-defending-champion)
-  - [20. Changes incorporated into the 2026 MOD-BN snapshot](#20-changes-incorporated-into-the-2026-mod-bn-snapshot)
+  - [20. Changes incorporated into the base snapshot](#20-changes-incorporated-into-the-base-snapshot)
   - [21. Verification against `F1-1985-Original.sna` and gameplay screenshots](#21-verification-against-f1-1985-originalsna-and-gameplay-screenshots)
     - [Confirmed identical fixed data](#211-confirmed-identical-fixed-data)
     - [New finding: driver cost is derived, not tabled](#212-new-finding-driver-cost-is-derived-not-tabled)
@@ -355,7 +355,7 @@ The useful high-level division is:
 | Spectrum screen and system workspace     | `$4000-$67FF` [16384-26623] | `$001B-$281A` [   27-10266] | Screen, attributes, system variables, empty BASIC workspace and the active machine stack   |
 | Predominantly game data                  | `$6800-$96A9` [26624-38569] | `$281B-$56C4` [10267-22212] | Runtime state, text, fixed tables, graphics and drawing data                               |
 | Main Z80 code region                     | `$96AA-$EA6F` [38570-60015] | `$56C5-$AA8A` [22213-43658] | region with most game instructions, small constants, scratch values and local data interleaved between routines |
-| Added Z80 routines and constants         | `$EA70-$EAFB` [60016-60155] | `$AA8B-$AB16` [43659-43798] | Six documented code/data blocks added to the final 2026 snapshot below the printable font  |
+| Added Z80 routines and constants         | `$EA70-$EAFB` [60016-60155] | `$AA8B-$AB16` [43659-43798] | Six documented code/data blocks added to the base snapshot below the printable font  |
 | Remaining unused control-character slots | `$EAFC-$EAFD` [60156-60157] | `$AB17-$AB18` [43799-43800] | Verified zero-filled padding in this snapshot; not part of the printable font              |
 | Printable custom font                    | `$EAFE-$EDFD` [60158-60925] | `$AB19-$AE18` [43801-44568] | Character codes 32-127, eight bytes per glyph                                              |
 | Cached scene artwork                     | `$EDFE-$FFFD` [60926-65533] | `$AE19-$C018` [44569-49176] | Pit/garage and race-scene bitmap and attribute caches                                      |
@@ -390,7 +390,7 @@ the instructions that use them. A disassembler therefore needs known entry
 points and control-flow analysis; blindly decoding the entire range from its
 first byte will sometimes display local data as nonsensical instructions.
 
-#### Added routines in the final snapshot
+#### Added routines in the base snapshot
 
 | Routine                                                     | Z80 address                 | SNA file offset             | Size     |
 |-------------------------------------------------------------|----------------------------:|----------------------------:|---------:|
@@ -401,7 +401,7 @@ first byte will sometimes display local data as nonsensical instructions.
 | Fixed-black/fixed-yellow border/PAPER routine and constants | `$EAC5-$EAE1` [60101-60129] | `$AAE0-$AAFC` [43744-43772] | 29 bytes |
 | Context-aware pre-payment clamp wrapper                     | `$EAE2-$EAFB` [60130-60155] | `$AAFD-$AB16` [43773-43798] | 26 bytes |
 
-In the 2020 MOD-derived code layout used by the final snapshot, the pre-existing
+In the 2020 MOD-derived code layout used by the base snapshot, the pre-existing
 occupied code ends at `$EA6F` [60015]. The original 1985 reference has
 an equivalent six-byte tail at `$EA70-$EA75` because its surrounding code is
 six bytes longer; it is therefore incorrect to describe the whole area as
@@ -430,7 +430,7 @@ from these `.sna` files alone.
 
 The following annotated disassembly covers the game’s main control sequence-the
 top-level organiser that calls the principal game phases and controls
-progression through races and seasons. In the current snapshot, it occupies
+progression through races and seasons. In the base snapshot, it occupies
 `$E99A-$EA6F` [59802-60015], a total of 214 bytes, and is entered through the
 `CALL $E99A` instruction at `$67E8` [26600].
 
@@ -707,7 +707,7 @@ in the six-team colour table.
 - Layout: 6 records x 10 bytes
 - Address of record `n`: `$6FE3 + n*10`; decimal base: `28643 + n*10`
 
-The final snapshot contains Herb Blash, Piccinini, Peter Warr, P. Collins,
+The base snapshot contains Herb Blash, Piccinini, Peter Warr, P. Collins,
 Ron Dennis and Jean Sage.
 
 #### Race and circuit names
@@ -719,7 +719,7 @@ Ron Dennis and Jean Sage.
 | Race-display copy | `$9402-$9481` [37890-38017] | 16 x  8 | `$9402 [37890] +  n*8` |
 
 The race-display copy is separate from the main short-name table. In the
-supplied final snapshot, the primary table right-aligns short labels, whereas
+supplied base snapshot, the primary table right-aligns short labels, whereas
 the display copy centres them within eight bytes; entries that already fill all
 eight bytes are identical. If a race name must change everywhere, update both
 `$7025-$70A4` [28709-28836] and `$9402-$9481` [37890-38017].
@@ -739,7 +739,7 @@ Unipart, Saudia, Denim, Nordica, Gitanes, ATS Wheels and Skoal.
   through ` 9` and then `10` through `99`.
 - `$748E-$760D` [29838-30221]: 12 fixed weather descriptions of 32 bytes each.
 - `$7626-$7627` [30246-30247]: the degree glyph followed by the unit letter.
-  The final snapshot contains bytes `$27,$43`, displayed as degree-C by the
+  The base snapshot contains bytes `$27,$43`, displayed as degree-C by the
   game's custom character set.
 
 The generic two-character number table is also how the temperature is printed;
@@ -766,7 +766,7 @@ Colour numbers are:
 |     3 | magenta |     7 | white  |
 
 The main six-byte team palette is at `$6FDD-$6FE2` [28637-28642].
-In the final snapshot it is:
+In the base snapshot it is:
 
 ```text
 01 02 00 04 03 06
@@ -975,7 +975,7 @@ The attribute meanings are:
 
 Earlier work changed cars 11 and 12 from the cyan attribute `$68` to yellow
 `$70`, matching their current team palette. Their bitmap records retained a
-different, two-pixel-thick frame. In the final snapshot, the 32 bitmap bytes at
+different, two-pixel-thick frame. In the base snapshot, the 32 bitmap bytes at
 `$913B-$915A` and `$915F-$917E` use the same one-pixel frame geometry as records
 1-10. The two-digit numerals and all eight `$70` attribute bytes are retained.
 
@@ -1084,7 +1084,7 @@ record holders, previous winners, circuit lengths or record years at
 `$6AE5-$6BA4` [27365-27556]. Those records therefore remain attached to their
 original calendar positions unless separately edited.
 
-The distance label at `$8FCA-$8FCE` [36810-36814] is `miles` in the final
+The distance label at `$8FCA-$8FCE` [36810-36814] is `miles` in the base
 snapshot.
 
 Relevant code:
@@ -1101,7 +1101,7 @@ The current season is formed from a base year plus the season-offset byte at
 `$8BDC` [35804]. That offset is incremented at `$C90E` [51470] when a season
 advances.
 
-The final snapshot restores these immediate year constants:
+The base snapshot restores these immediate year constants:
 
 | Instruction address | Bytes      | Meaning                            |
 |---------------------|------------|------------------------------------|
@@ -1152,7 +1152,7 @@ Its 32 attributes are `$5AE0-$5AFF` [23264-23295]; SNA file offsets [6907-6938].
 Every attribute remains `$07`, meaning white INK 7 on black PAPER 0 with
 BRIGHT clear.
 
-In the final snapshot this row is rebuilt from the installed custom-font glyphs
+In the base snapshot this row is rebuilt from the installed custom-font glyphs
 while retaining the exact text, position and attributes. The change affects 120
 bitmap-byte values; the remainder of the splash screen and all non-screen
 memory are untouched.
@@ -1169,7 +1169,7 @@ $E9FE [59902] + 8*character_code
 Printable ASCII begins with character code 32 at `$EAFE` [60158]. The injected
 routines and constants at `$EA70-$EAFB` [60016-60155] occupy control-code
 storage below that point; they do not overwrite any printable letter, number or
-punctuation glyph. In the final snapshot only `$EAFC-$EAFD` [60156-60157]
+punctuation glyph. In the base snapshot only `$EAFC-$EAFD` [60156-60157]
 remains zero-filled. As noted in §4, the exact pre-patch contents differ
 between the original 1985 and 2020 MOD-derived code layouts, so only the
 specifically documented ranges should be treated as available.
@@ -1201,7 +1201,7 @@ and black INK 0. Consequently, the apparently broken alternate image was not
 a second arrow: it was the same bitmap with INK and PAPER exchanged by the
 Spectrum's hardware flashing.
 
-The final snapshot retains the flashing attribute but replaces only the eight
+The base snapshot retains the flashing attribute but replaces only the eight
 source-bitmap bytes with the user-supplied symmetrical design:
 
 ```text
@@ -1234,7 +1234,7 @@ The captured attribute at `$5880` [22656] is `$70`: FLASH 0, BRIGHT 1, yellow
 PAPER 6 and black INK 0. This attribute belongs to that particular screen use
 rather than to the shared source bitmap.
 
-The final snapshot replaces the right-arrow bytes with the horizontal mirror
+The base snapshot replaces the right-arrow bytes with the horizontal mirror
 of the new left arrow:
 
 ```text
@@ -1348,7 +1348,7 @@ cell contains `$4F`: BRIGHT 1, white INK 7 and blue PAPER 1. Consequently, set
 bitmap bits appear white and clear bits appear blue; replacing the lettering
 requires changing only the 80 bitmap bytes above.
 
-The final snapshot replaces the original block-letter banner with the supplied
+The base snapshot replaces the original block-letter banner with the supplied
 italic 80 x 8 bitmap. Sixty-three byte values differ because seventeen
 replacement bytes already matched the original data. No attribute, code or
 unrelated bitmap byte changes.
@@ -1380,7 +1380,7 @@ pixels land at x=17 through x=22, wholly inside the existing red attribute
 cell; all blue pixels remain outside that cell. This preserves the attributes
 unchanged and avoids Spectrum colour clash.
 
-The final snapshot also contains this replacement Mobil artwork. Twenty-nine
+The base snapshot also contains this replacement Mobil artwork. Twenty-nine
 bitmap-byte values differ from the original Mobil image; no attributes, code
 or unrelated artwork change.
 
@@ -1408,11 +1408,11 @@ white pixels followed by four black pixels. Replacing all eight bytes with
 
 That all-black separator was a development step, not the final state: it was
 subsequently incorporated into and superseded by the six-cell `ELAPSED` label
-below. In the final snapshot, `$F604` is therefore `$47`, not `$78`.
+below. In the base snapshot, `$F604` is therefore `$47`, not `$78`.
 
 ##### Pit/garage `ELAPSED` label
 
-The final snapshot replaces the black Mobil separator, the four cells spelling
+The base snapshot replaces the black Mobil separator, the four cells spelling
 `Time`, and the following blank cell with one six-cell, 48 x 8-pixel black
 label. The supplied 42 x 8 `ELAPSED` bitmap is placed six pixels to the right
 of its initially centred position. Its visible white artwork therefore occupies
@@ -1481,7 +1481,7 @@ car-movement loop at `$B83A` [47162] does not call this routine. It is therefore
 not an every-lap redraw, although several major race-state changes can expose
 the placeholder.
 
-The final snapshot changes only the 64 alternating `$55`/`$AA` bitmap bytes to
+The base snapshot changes only the 64 alternating `$55`/`$AA` bitmap bytes to
 `$00`. A cache restoration now briefly shows a plain blue banner before the
 country name is written. The attributes, country-name records, text renderer
 and all executable code remain unchanged.
@@ -1507,7 +1507,7 @@ The ten bitmap bytes on each scanline are interleaved as follows:
 The ten corresponding attributes at `$FF20-$FF29` [65312-65321]; SNA file
 offsets [48955-48964] remain `$4E`: BRIGHT 1, yellow INK 6 and blue PAPER 1.
 
-In the final snapshot these ten cells are rebuilt from the installed custom-font
+In the base snapshot these ten cells are rebuilt from the installed custom-font
 glyphs for `GRAND PRIX`, without changing their positions or attributes.
 Exactly 43 bitmap-byte values differ from the earlier raster; the timing-tower
 lettering and all unrelated data remain untouched.
@@ -1553,7 +1553,7 @@ The corresponding 21 attributes are `$FF10-$FF16`, `$FF30-$FF36` and
 [48939-48945], [48971-48977] and [49003-49009].  Every attribute is `$72`:
 FLASH 0, BRIGHT 1, yellow PAPER 6 and red INK 2.
 
-The final snapshot replaces the full 56 x 24 panel bitmap pixel-for-pixel from
+The base snapshot replaces the full 56 x 24 panel bitmap pixel-for-pixel from
 the supplied two-colour PNG. Of the panel's 168 bitmap-byte positions, 77 byte
 values differ from the earlier artwork; all 21 attributes, the two transition
 cells and every unrelated byte remain untouched.
@@ -1578,7 +1578,7 @@ each of eight interleaved scanlines:
 The thirteen attributes at `$FFDE-$FFEA` [65502-65514]; SNA file offsets
 [49145-49157] remain `$46`, meaning bright-yellow INK 6 on black PAPER 0.
 
-In the final snapshot, the pixels spelling `pecial` are shifted one pixel left
+In the base snapshot, the pixels spelling `pecial` are shifted one pixel left
 while `John Player S` remains fixed. The old final pixel column x=103 is
 cleared and the adjacent FIAT artwork still begins at x=104, providing a
 one-pixel separation between the two logos. Exactly thirty bitmap-byte values
@@ -1606,7 +1606,7 @@ Original flow:
 - `$C87A-$C880` [51322-51328]: reduce the value modulo 30;
 - `$C882-$C888` [51330-51336]: originally add 55 and store the result at `$82A7` [33447].
 
-In the final snapshot, `$C882-$C888` [51330-51336] contains:
+In the base snapshot, `$C882-$C888` [51330-51336] contains:
 
 ```text
 CD 70 EA 00 00 00 00
@@ -1656,7 +1656,7 @@ Consequences:
   distribution is defective.
 
 The RNG, initial seeding code, AI maintenance code and race-worthiness code in
-the final snapshot are byte-for-byte identical to the supplied 1985 snapshot.
+the base snapshot are byte-for-byte identical to the supplied 1985 snapshot.
 
 ### 16. AI maintenance and cars missing from the grid
 
@@ -1723,7 +1723,7 @@ beginning at `$C7FB` [51195] includes `$69FD-$6A08` [27133-27144]. The rejected
 cars can therefore return after their equipment is replaced, although other
 cars may suffer the same one-race problem later.
 
-The final documented snapshot preserves this original behaviour. A robust
+The base snapshot preserves this original behaviour. A robust
 future fix would replace or clamp an AI component immediately when a
 deterioration update produces 51 or more.
 
@@ -1790,7 +1790,7 @@ changes no sponsor name, value or valid sponsor assignment.
 #### Optional double starting money
 
 The game calculates a new sponsorship-based balance for each human-controlled
-team at the beginning of every season. The canonical snapshot preserves the
+team at the beginning of every season. The base snapshot preserves the
 normal calculation. Players who prefer enough money to begin with two drivers,
 under approximately the same practical conditions as the AI teams, can enable
 the optional `--double-starting-money` adjustment in `Tweak-F1.py`.
@@ -2010,7 +2010,7 @@ conditions as computer-controlled cars.
 
 The _tyre wear threshold_ and race-progress check would remain unchanged, and
 human players could still request a pit stop manually by pressing `P`.
-This modification has not been applied to the current snapshot.
+This modification has not been applied to the base snapshot.
 The optional `--automatic-human-pit-stops` switch described in
 [Part IV](#part-iv-using-tweak-f1py) applies exactly this six-byte patch while
 leaving it absent by default.
@@ -2075,13 +2075,13 @@ would require a persistent 12-entry slot-to-number mapping and the reverse
 mapping for pit input. To follow the historical convention, the champion's car
 would receive 1, the teammate 2, and the former 1/2 team would receive the
 champion team's previous number pair. This feature has been analysed but is not
-implemented in the final snapshot.
+implemented in the base snapshot.
 
-### 20. Changes incorporated into the 2026 MOD-BN snapshot
+### 20. Changes incorporated into the base snapshot
 
-The 2026 MOD-BN snapshot was developed from the 2020 MOD by Rui Martins and
-Jorge Pois. The main changes incorporated into 2026 MOD-BN are listed below
-in logical order:
+The base snapshot (`F1-2026-MOD-BN.sna`) was developed from the 2020 MOD by
+Rui Martins and Jorge Pois. The main changes incorporated into the base
+snapshot are listed below in logical order:
 
 - Keep the 2020 MOD car and scene artwork.
 - Restore the 1985 driver, team, manager, sponsor, race and circuit text,
@@ -2109,7 +2109,7 @@ in logical order:
 - Component-improvement entries limited to their remaining useful cost, with
   255 retained as the overall ceiling.
 
-The list above records the changes present in the 2026 MOD-BN snapshot.
+The list above records the changes present in the base snapshot.
 Some chapters document existing game behaviour rather than modifications,
 including the RNG, AI maintenance, sponsorship model, tyre model and fixed
 car-number behaviour.
@@ -2183,7 +2183,7 @@ been isolated in the disassembly; this is listed as an open item in 21.3.
 
 ### 22. Screen border-colour independence patches
 
-These related patches are included in the final snapshot and operate on the
+These related patches are included in the base snapshot and operate on the
 same 49,179-byte image as the other documented changes. They were added after
 the Celsius, starting-money, faster-progress-bar and starting-grid-frame
 corrections described earlier.
@@ -2215,7 +2215,7 @@ actual colours of teams 1, 3 and 6 free to be changed.
 
 `$EAB3-$EAC4` [60083-60100], 18 bytes, placed in space that was still
 zero-filled immediately after the first three added routines at `$EA70-$EAB2`
-(§4, "Added routines in the final snapshot"):
+(§4, "Added routines in the base snapshot"):
 
 ```text
 $EAB3  01                BORDER_BLUE_CONST: db 1      ; Spectrum hue 1 = blue; edit this single byte to change all four screens
@@ -2293,7 +2293,7 @@ the Manager Standard routine references its `...standard of...` and
 `PRESS 1 to 5...` text.
 
 Two starred addresses vary between builds. The end-of-season call site is at
-`$E783` in the final snapshot, six bytes earlier than `$E789` in
+`$E783` in the base snapshot, six bytes earlier than `$E789` in
 `F1-1985-Original.sna`. The "racing cancelled" call is at `$E419`,
 versus `$E41F` in the original snapshot. These sites should therefore be
 relocated by their byte patterns and surrounding routines rather than assumed
@@ -2320,7 +2320,7 @@ repeated if another stray screen appears.
 
 #### Recommended verification
 
-Verification consists of loading the final snapshot in an emulator, repainting
+Verification consists of loading the base snapshot in an emulator, repainting
 teams 1, 3 and 6, and checking that all nine
 listed screens retain their intended blue, black or yellow border and default
 `PAPER` colour. Team Selection's car swatches, Sponsor Selection and the
@@ -2328,10 +2328,9 @@ side/top-view cars should still reflect the teams' actual chosen colours.
 
 ### 23. Removal of the redundant "FORMULA 1" title text
 
-Once the splash bitmap documented in §13 was replaced with custom artwork that
-already includes a large graphical `FORMULA ONE` logo, the small plain-text
-title `FORMULA 1` that the original 1985 game additionally prints on two later
-setup screens became redundant duplication rather than a title in its own right.
+Once the splash bitmap documented in §13 was replaced with custom artwork
+containing a large graphical FORMULA ONE logo, the smaller plain-text FORMULA 1
+titles on two later setup screens became redundant.
 
 #### Where it comes from
 
@@ -2360,7 +2359,7 @@ nothing after it depends on the register state it sets up.
 
 #### The patch
 
-The two printing sequences were first replaced with `NOP`s. In the final
+The two printing sequences were first replaced with `NOP`s. In the base
 snapshot, their now-unused space is shared with the improvement-limit helper
 documented in §24. Each screen begins with a short jump over its helper fragment
 and therefore proceeds directly to the original follow-on prompt:
@@ -2687,7 +2686,7 @@ relevant code.
 ### 27. Purpose, scope and safeguards
 
 `Tweak-F1.py` is a command-line patcher for making season variants of the
-documented 48K snapshot. It can replace selected names, the opening year, the
+documented base snapshot. It can replace selected names, the opening year, the
 sixteen-race calendar and the six team colour schemes. It can also apply the
 optional automatic-pit-stop modification described in
 [chapter 18](#18-tyre-choice-tyre-wear-and-pit-stops) and reduce the random
