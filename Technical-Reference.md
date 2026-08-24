@@ -31,9 +31,6 @@ original 1985 game, including component-purchase and improvement entries,
 general-screen border colours and the scheduling of pit stops for the second
 car in each team. A detailed list of changes is outlined in chapter 20.
 
-This technical reference describes the final file and the changes it contains.
-The original 1985 snapshot is retained as the named comparison baseline.
-
 Verified SHA-256 for `F1-2026-MOD-BN.sna`:
 
 `c7013c46a3a228f4d68b79782ea3b3fdeebbc8f3db4808b23bc2a1355f8d6234`
@@ -121,7 +118,7 @@ continue developing the game.
     - [Progressive wear](#progressive-wear)
     - [Pit behaviour](#pit-behaviour)
   - [19. Fixed car numbers and the defending champion](#19-fixed-car-numbers-and-the-defending-champion)
-  - [20. Modification history represented by the final snapshot](#20-modification-history-represented-by-the-final-snapshot)
+  - [20. Changes incorporated into the 2026 MOD-BN snapshot](#20-changes-incorporated-into-the-2026-mod-bn-snapshot)
   - [21. Verification against `F1-1985-Original.sna` and gameplay screenshots](#21-verification-against-f1-1985-originalsna-and-gameplay-screenshots)
     - [Confirmed identical fixed data](#211-confirmed-identical-fixed-data)
     - [New finding: driver cost is derived, not tabled](#212-new-finding-driver-cost-is-derived-not-tabled)
@@ -1011,8 +1008,9 @@ It reads this table and updates both:
 
 The table is also referenced by a secondary management/calculation path around
 `$B9E9` [47593], so editing the single table keeps the game's calculations
-consistent. The point totals are mutable run-time data and are reset by the
-new-season logic; the table at `$7B96` [31638] is the rule to edit.
+consistent.
+The point totals are mutable run-time data and are reset by the
+new-season logic; to change the scoring system, edit the table at $7B96 [31638].
 
 ### 11. Original 1985 race data
 
@@ -2079,15 +2077,15 @@ would receive 1, the teammate 2, and the former 1/2 team would receive the
 champion team's previous number pair. This feature has been analysed but is not
 implemented in the final snapshot.
 
-### 20. Modification history represented by the final snapshot
+### 20. Changes incorporated into the 2026 MOD-BN snapshot
 
-The final snapshot grew from 2020 MOD-derived starting point.
-In logical order, the changes done to obtain 2026 MOD-BN are:
+The 2026 MOD-BN snapshot was developed from the 2020 MOD by Rui Martins and
+Jorge Pois. The main changes incorporated into 2026 MOD-BN are listed below
+in logical order:
 
-- Original 1985 driver, team, manager, sponsor, race and circuit text.
-- Original 1985 lap counts, records, previous winners, lengths and year bases.
-- 2020 MOD car and scene artwork.
-- Classic team palette, including black Lotus and yellow Renault.
+- Keep the 2020 MOD car and scene artwork.
+- Restore the 1985 driver, team, manager, sponsor, race and circuit text,
+  lap counts, records, previous winners, lengths and year bases.
 - Consistently narrow car-number glyphs for cars 1-12.
 - Fahrenheit temperatures converted to Celsius.
 - Horizontally symmetric shared engine artwork.
@@ -2111,16 +2109,10 @@ In logical order, the changes done to obtain 2026 MOD-BN are:
 - Component-improvement entries limited to their remaining useful cost, with
   255 retained as the overall ceiling.
 
-This is a history of changes, not a chain of build files. The obsolete
-intermediate filenames and per-step hashes have intentionally been omitted.
-This map is specific to the final snapshot named at the top. The RNG, AI
-maintenance/no-show behaviour, underlying sponsorship model, tyre model and
-fixed car-number behaviour are documented discoveries. The sponsor-pointer
-correction and context-aware purchase/improvement limits are gameplay fixes,
-while balance doubling is an optional gameplay adjustment and the progress-bar
-patch changes presentation speed only. Addresses that hold free space, modified
-code or replacement data should not be assumed identical in another snapshot
-without a byte comparison.
+The list above records the changes present in the 2026 MOD-BN snapshot.
+Some chapters document existing game behaviour rather than modifications,
+including the RNG, AI maintenance, sponsorship model, tyre model and fixed
+car-number behaviour.
 
 ### 21. Verification against `F1-1985-Original.sna` and gameplay screenshots
 
@@ -2646,10 +2638,10 @@ This chapter divides the game into its principal screens and phases.
 Sections 01-23 describe the normal progression through a game. Section 24 is
 an alternative cancellation branch that can be reached before any Grand Prix.
 
-The addresses in the table below identify the beginning or practical controller
-of each recognisable gameplay section. Some screens are phases inside a larger
-routine, so the fourth column also names the renderer, input loop, caller or
-follow-on routine that fixes the identification more precisely.
+The table below lists the main gameplay sections and the addresses of their
+entry points or controlling routines.  Where a screen forms part of a larger
+routine, the final column gives additional addresses that help identify the
+relevant code.
 
 | No. | Section                               | Beginning/controller | Related routines and addresses                                                                                          |
 |----:|---------------------------------------|---------------------:|-------------------------------------------------------------------------------------------------------------------------|
